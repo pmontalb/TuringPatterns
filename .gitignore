@@ -13,3 +13,5 @@ FINITEDIFFERENCE-ffa2693e
 /ipch/TURINGPATTERNS-d8439138
 *.opendb
 *.db
+.idea
+/results.csv

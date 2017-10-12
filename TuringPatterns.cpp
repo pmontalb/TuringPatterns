@@ -10,41 +10,7 @@
 
 int main()
 {
-	using namespace std;
-	using namespace dev;
 	using namespace la;
-
-	CDeviceManager& devManager = CDeviceManager::Get();
-	auto nGpu = devManager.GetDeviceCount();
-
-	cout << "There are " << nGpu << " GPUs" << endl;
-
-	//CVector v(10, -123);
-	//v.Print();
-
-	//auto w = la::LinSpace(2, 5, 25);
-	//w.Print();
-
-	//auto z = la::RandomUniform(16);
-	//z.Print();
-
-	//auto t = la::RandomGaussian(10);
-	//t.Print();
-
-	//CMatrix A = la::RandomGaussian(4, 4);
-	//A.Print();
-
-	//CMatrix v(10, 10, -123, EMemorySpace::Device, EMathDomain::Double);
-	//v.Print("v");
-
-	//CMatrix u(10, 10, 123, EMemorySpace::Device, EMathDomain::Double);
-	//u.Print("u");
-
-	//v.AddEqual(u, 2.0);
-	//u.Print("u after first add");
-
-	//v.AddEqual(u, 2.0);
-	//v.Print("u after second add");
 
 	CVector grid = la::LinSpace(0.0, 1.0, 16);
 	auto x = grid.Get();
@@ -56,7 +22,6 @@ int main()
 
 	CVector ic(grid);
 	ic.ReadFrom(initialCondition);
-	ic.Print();
 	fd::CParabolicData1D input(grid, ic, 1.0, EBoundaryCondition::ZeroFlux);
 
 	double dt = 1e-4;
@@ -74,6 +39,8 @@ int main()
 		solver.Iterate(solution, nIterPerRound);
 		toPlot.columns[n]->ReadFrom(solution);
 	}
+
+	toPlot.ToCsv("results.csv");
 
     return 0;
 }
