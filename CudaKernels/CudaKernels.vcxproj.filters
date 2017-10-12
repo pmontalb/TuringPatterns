@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="DeviceManager.cu">
+      <Filter>Source Files\Manager</Filter>
+    </CudaCompile>
+    <CudaCompile Include="MemoryBuffer.cu">
+      <Filter>Source Files\Manager</Filter>
+    </CudaCompile>
+    <CudaCompile Include="BufferInitializer.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CuBlasWrapper.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="FiniteDifference.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8f4aca6d-4f37-44de-b4ce-f9a57be4ec91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Manager">
+      <UniqueIdentifier>{5c47d9a6-7c46-4899-9ab8-38c1b0c49fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{54d9b06e-6f68-4868-ba6a-3ae6f3033a0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Manager">
+      <UniqueIdentifier>{e08770de-fc31-46ac-89a5-fe9bbb88aee7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DeviceManager.cuh">
+      <Filter>Header Files\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flags.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryBuffer.cuh">
+      <Filter>Header Files\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferInitializer.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuBlasWrapper.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FiniteDifference.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
