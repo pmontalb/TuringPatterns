@@ -18,6 +18,18 @@ namespace fd
 		const EBoundaryCondition boundaryCondition;
 	};
 
+	class FINITEDIFFERENCE_API CParabolicData2D
+	{
+	public:
+		CParabolicData2D(const la::CVector& xGrid, const la::CVector& yGrid, const la::CMatrix& initialCondition, const double diffusionCoefficient, const EBoundaryCondition boundaryCondition) noexcept;
+
+		const la::CVector& xGrid;
+		const la::CVector& yGrid;
+		const la::CMatrix& initialCondition;
+		const double diffusionCoefficient;
+		const EBoundaryCondition boundaryCondition;
+	};
+
 	class FINITEDIFFERENCE_API CParabolicSolver
 	{
 	public:
@@ -37,5 +49,18 @@ namespace fd
 
 	protected:
 		const CParabolicData1D& input;
+	};
+
+	class FINITEDIFFERENCE_API CParabolicSolver2D : public CParabolicSolver
+	{
+	public:
+		CParabolicSolver2D(const CParabolicData2D& input, const double dt);
+
+		void Initialize(la::CMatrix& solution) const;
+		void Iterate(la::CMatrix& solution, const size_t nIterations) const;
+
+
+	protected:
+		const CParabolicData2D& input;
 	};
 }

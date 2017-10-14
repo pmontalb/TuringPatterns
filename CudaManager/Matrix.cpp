@@ -26,6 +26,14 @@ namespace la
 	CMatrix::CMatrix(CMemoryTile buffer, bool isOwner)
 		: buffer(buffer), isOwner(isOwner)
 	{
+		// if is not the owner it has already been allocated!
+		if (!isOwner)
+		{
+			if (!buffer.pointer)
+				throw std::exception("Pointer must be allocated first!");
+			return;
+		}
+
 		switch (buffer.memorySpace)
 		{
 		case EMemorySpace::Device:
@@ -118,37 +126,7 @@ namespace la
 
 	std::vector<double> CMatrix::Get(size_t column) const
 	{
-		dev::detail::ThreadSynchronize();
-
-		CMemoryBuffer newBuf(buffer);
-		newBuf.memorySpace = EMemorySpace::Host;
-
-		dev::detail::AllocHost(newBuf);
-		dev::detail::AutoCopy(newBuf, buffer);
-
-		std::vector<double> ret(nRows());
-
-		switch (buffer.mathDomain)
-		{
-		case EMathDomain::Double:
-		{
-			double* ptr = (double*)newBuf.pointer;
-			for (size_t i = 0; i < nRows(); i++)
-				ret[i] = ptr[i + nRows() * column];
-		}
-		case EMathDomain::Float:
-		{
-			float* ptr = (float*)newBuf.pointer;
-			for (size_t i = 0; i < nRows(); i++)
-				ret[i] = ptr[i + nRows() * column];
-		}
-		default:
-			break;
-		}
-
-		dev::detail::FreeHost(newBuf);
-
-		return ret;
+		return columns[column]->Get();
 	}
 
 	void CMatrix::Print(const std::string& label) const
@@ -267,9 +245,9 @@ namespace la
 		return ret;
 	}
 
-	CUDAMANAGER_API void Print(const CMatrix& vec, const std::string& label)
+	CUDAMANAGER_API void Print(const CMatrix& mat, const std::string& label)
 	{
-		vec.Print(label);
+		mat.Print(label);
 	}
 
 	CUDAMANAGER_API CMatrix Add(const CMatrix& lhs, const CMatrix& rhs, double alpha)

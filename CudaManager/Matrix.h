@@ -16,6 +16,7 @@ namespace la
 	class CUDAMANAGER_API CMatrix
 	{
 	public:
+		friend class CTensor;
 
 		CMatrix(size_t nRows, size_t nCols, EMemorySpace memorySpace = EMemorySpace::Device, EMathDomain mathDomain = EMathDomain::Float);
 
@@ -28,6 +29,24 @@ namespace la
 		CMatrix(const CVector& rhs);		
 
 		void ReadFrom(const CMatrix& rhs);
+
+		inline void ReadFrom(const std::vector<float>& rhs)
+		{
+			if (!buffer.pointer)
+				throw std::exception("Buffer needs to be initialised first!");
+
+			CMemoryTile rhsBuf((size_t)(rhs.data()), nRows(), nCols(), EMemorySpace::Host, EMathDomain::Double);
+			dev::detail::AutoCopy(buffer, rhsBuf);
+		}
+
+		inline void ReadFrom(const std::vector<double>& rhs)
+		{
+			if (!buffer.pointer)
+				throw std::exception("Buffer needs to be initialised first!");
+
+			CMemoryTile rhsBuf((size_t)(rhs.data()), nRows(), nCols(), EMemorySpace::Host, EMathDomain::Double);
+			dev::detail::AutoCopy(buffer, rhsBuf);
+		}
 
 		void ReadFrom(const CVector& rhs);
 
@@ -68,6 +87,7 @@ namespace la
 		inline size_t nCols() const noexcept { return buffer.nCols; }
 		inline EMemorySpace memorySpace() const noexcept { return buffer.memorySpace; }
 		inline EMathDomain mathDomain() const noexcept { return buffer.mathDomain; }
+		inline CMemoryTile GetBuffer() const noexcept { return buffer; }
 
 		std::vector<std::shared_ptr<CVector>> columns;
 

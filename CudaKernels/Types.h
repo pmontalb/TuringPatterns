@@ -62,6 +62,25 @@ extern "C"
 		{
 
 		}
+
+	protected:
+		explicit CMemoryTile(const ptr_t pointer = 0, const size_t nRows = 0, const size_t nCols = 0, const size_t size = 0, EMemorySpace memorySpace = EMemorySpace::Null, EMathDomain mathDomain = EMathDomain::Null)
+			: CMemoryBuffer(pointer, size, memorySpace, mathDomain), nRows(nRows), nCols(nCols)
+		{
+
+		}
+	};
+
+	class CMemoryCube : public CMemoryTile
+	{
+	public:
+		size_t nCubes;
+
+		explicit CMemoryCube(const ptr_t pointer = 0, const size_t nRows = 0, const size_t nCols = 0, size_t nCubes = 0, EMemorySpace memorySpace = EMemorySpace::Null, EMathDomain mathDomain = EMathDomain::Null)
+			: CMemoryTile(pointer, nRows, nCols, nRows * nCols * nCubes, memorySpace, mathDomain), nCubes(nCubes)
+		{
+
+		}
 	};
 
 	enum class EBoundaryCondition

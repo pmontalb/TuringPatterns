@@ -110,6 +110,21 @@
 		}\
 	}
 
+#define __CREATE_FUNCTION_7_ARG(NAME, TYPE0, ARG0, TYPE1, ARG1, TYPE2, ARG2, TYPE3, ARG3, TYPE4, ARG4, TYPE5, ARG5, TYPE6, ARG6)\
+	EXTERN_C IMPORT int _##NAME(TYPE0 ARG0, TYPE1 ARG1, TYPE2 ARG2, TYPE3 ARG3, TYPE4 ARG4, TYPE5 ARG5, TYPE6 ARG6);\
+	namespace dev\
+	{\
+		namespace detail\
+		{\
+			void CUDAMANAGER_API NAME(TYPE0 ARG0, TYPE1 ARG1, TYPE2 ARG2, TYPE3 ARG3, TYPE4 ARG4, TYPE5 ARG5, TYPE6 ARG6)\
+			{\
+				int err = _##NAME(ARG0, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6);\
+				if (err != 0)\
+					throw std::exception("Failed to call " #NAME);\
+			}\
+		}\
+	}
+
 #pragma endregion
 
 // Device
@@ -142,3 +157,4 @@ __CREATE_FUNCTION_2_ARG(Scale, CMemoryBuffer, z, const double, value);
 
 // Finite Difference
 __CREATE_FUNCTION_6_ARG(Iterate1D, CMemoryBuffer, uNew, const CMemoryBuffer, u, const CMemoryBuffer, grid, const double, dt, const double, diffusionCoefficient, const EBoundaryCondition, boundaryConditionType);
+__CREATE_FUNCTION_7_ARG(Iterate2D, CMemoryTile, uNew, const CMemoryTile, u, const CMemoryBuffer, xGrid, const CMemoryBuffer, yGrid, const double, dt, const double, diffusionCoefficient, const EBoundaryCondition, boundaryConditionType);
