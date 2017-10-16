@@ -7,6 +7,8 @@
 
 namespace fd
 {
+	#pragma region Input Data
+
 	class FINITEDIFFERENCE_API CParabolicData1D 
 	{
 	public:
@@ -29,6 +31,10 @@ namespace fd
 		const double diffusionCoefficient;
 		const EBoundaryCondition boundaryCondition;
 	};
+
+	#pragma endregion
+
+	#pragma region Solvers
 
 	class FINITEDIFFERENCE_API CParabolicSolver
 	{
@@ -63,4 +69,6 @@ namespace fd
 	protected:
 		const CParabolicData2D& input;
 	};
+
+	#pragma endregion
 }

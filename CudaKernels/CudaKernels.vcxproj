@@ -109,6 +109,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <RuntimeChecks>RTC1</RuntimeChecks>
       <TypeInfo>false</TypeInfo>
       <Warning>Wall</Warning>
+      <CodeGeneration>compute_30,sm_30</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -152,9 +153,12 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <FastMath>true</FastMath>
-      <Optimization>O3</Optimization>
-      <Warning>Wall</Warning>
+      <Optimization>InheritFromHost</Optimization>
+      <Warning>W0</Warning>
+      <CodeGeneration>compute_30,sm_30</CodeGeneration>
+      <Runtime>InheritFromHost</Runtime>
+      <RuntimeChecks>Default</RuntimeChecks>
+      <TypeInfo>false</TypeInfo>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

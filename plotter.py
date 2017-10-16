@@ -6,6 +6,9 @@ import matplotlib.animation as animation
 from subprocess import Popen
 import os
 
+debugDll = os.getcwd() + "\\x64\\Debug\\TuringPatterns.exe"
+releaseDll = os.getcwd() + "\\x64\\Release\\TuringPatterns.exe"
+
 
 def __ax_formatter(ax, title="", x_label="", y_label="", show_legend=False):
     ax.set_title(title)
@@ -23,7 +26,7 @@ def surf(z, x, y, title="", x_label="", y_label="", show_legend=False, show=Fals
     # Create X and Y data
     x_grid, y_grid = np.meshgrid(x, y)
 
-    ax.plot_surface(x_grid, y_grid, z, rstride=1, cstride=1, antialiased=True)
+    ax.plot_surface(x_grid, y_grid, z, cmap=cm.coolwarm, rstride=16, cstride=16, antialiased=True)
 
     __ax_formatter(ax, title, x_label, y_label, show_legend)
 
@@ -66,26 +69,26 @@ def animate(z, x, show=False):
         plt.show()
 
 
-def animate3D(z, x, y, show=False):
+def animate_3D(z, x, y, rstride=1, cstride=1, show=False):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
     # Create X and Y data
     x_grid, y_grid = np.meshgrid(x, y)
 
-    line = ax.plot_surface(x_grid, y_grid, z[0], rstride=1, cstride=1, antialiased=True)
+    line = ax.plot_surface(x_grid, y_grid, z[0], cmap=cm.coolwarm, rstride=rstride, cstride=cstride, antialiased=True)
 
     def update_line(i):
         if i >= z.shape[0]:
             return line,
         ax.clear()
-        l = ax.plot_surface(x_grid, y_grid, z[i], rstride=1, cstride=1, antialiased=True)
+        l = ax.plot_surface(x_grid, y_grid, z[i], cmap=cm.coolwarm,rstride=rstride, cstride=cstride, antialiased=True)
         return l,
 
     # Init only required for blitting to give a clean slate.
     def init():
         ax.clear()
-        l = ax.plot_surface(x_grid, y_grid, z[0], rstride=1, cstride=1, antialiased=True)
+        l = ax.plot_surface(x_grid, y_grid, z[0], cmap=cm.coolwarm, rstride=rstride, cstride=cstride, antialiased=True)
         return l,
 
     ani = animation.FuncAnimation(fig, update_line, np.arange(1, 200), init_func=init, interval=25, blit=False)
@@ -94,49 +97,22 @@ def animate3D(z, x, y, show=False):
         plt.show()
 
 
-def read_1D():
-    mat = []
-    with open(os.getcwd() + "\\results1D.csv") as f:
-        lines = f.readlines()
-        for line in lines:
-            mat.append([float(x) for x in line.split(",") if x not in ["", "\n"]])
-    mat = np.array(mat)
-    return mat
+def animate_colormap(z, x, y, show=False):
+    fig, ax = plt.subplots()
+    x, y = np.meshgrid(x, y)
+    ax.pcolormesh(x, y, z[0], shading='gouraud')
 
+    def update_line(i):
+        if i >= z.shape[0]:
+            return None,
+        ax.clear()
+        ax.pcolormesh(x, y, z[i], shading='gouraud')
+        return None,
 
-def read_2D():
-    tensor = []
+    ani = animation.FuncAnimation(fig, update_line, np.arange(1, 200), interval=25, blit=False)
 
-    n_matrices = 0
-    n_rows = 0
-    with open(os.getcwd() + "\\results2D.csv") as f:
-        lines = f.readlines()
-        for line in lines:
-            if len(line.split(",")) == 1:
-                n_matrices += 1
-                continue
-            elif n_matrices == 0:
-                n_rows += 1
-
-            tensor.append([float(x) for x in line.split(",") if x not in ["", "\n"]])
-    tensor = np.array(tensor)
-    tensor = tensor.reshape((n_matrices, n_rows, n_rows))
-    return tensor
-
-
-if __name__ == "__main__":
-    dll = os.getcwd() + "\\x64\\Debug\\TuringPatterns.exe"
-    p = Popen(dll)
-    p.communicate()
-
-    tensor = read_2D()
-
-    #surf(mat, np.arange(mat.shape[1]), np.linspace(0.0, 1.0, mat.shape[0]), show=True)
-    #plot(mat, np.arange(mat.shape[1]), show=True)
-    #animate(mat, np.linspace(0.0, 1.0, mat.shape[0]), show=True)
-
-    #surf(mat[0, :,:], np.arange(mat.shape[1]), np.arange(mat.shape[2]), show=True)
-    animate3D(tensor, np.linspace(0.0, 1.0, tensor.shape[1]), np.linspace(0.0, 1.0, tensor.shape[2]), True)
+    if show:
+        plt.show()
 
 
 

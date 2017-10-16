@@ -50,6 +50,11 @@ namespace la
 
 		void ReadFrom(const CVector& rhs);
 
+		inline void Set(double value)
+		{
+			dev::detail::Initialize(buffer, value);
+		}
+
 		void RandomUniform(unsigned seed = 1234);
 
 		void RandomGaussian(unsigned seed = 1234);

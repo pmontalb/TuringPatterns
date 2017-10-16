@@ -158,3 +158,4 @@ __CREATE_FUNCTION_2_ARG(Scale, CMemoryBuffer, z, const double, value);
 // Finite Difference
 __CREATE_FUNCTION_6_ARG(Iterate1D, CMemoryBuffer, uNew, const CMemoryBuffer, u, const CMemoryBuffer, grid, const double, dt, const double, diffusionCoefficient, const EBoundaryCondition, boundaryConditionType);
 __CREATE_FUNCTION_7_ARG(Iterate2D, CMemoryTile, uNew, const CMemoryTile, u, const CMemoryBuffer, xGrid, const CMemoryBuffer, yGrid, const double, dt, const double, diffusionCoefficient, const EBoundaryCondition, boundaryConditionType);
+__CREATE_FUNCTION_1_ARG(Iterate2DPattern, CPatternInput2D, input);

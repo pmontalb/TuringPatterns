@@ -36,6 +36,9 @@
     <ClInclude Include="Parabolic.h">
       <Filter>Header Files\Solvers</Filter>
     </ClInclude>
+    <ClInclude Include="Pattern.h">
+      <Filter>Header Files\Solvers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Parabolic.cpp">
+      <Filter>Source Files\Solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern.cpp">
       <Filter>Source Files\Solvers</Filter>
     </ClCompile>
   </ItemGroup>

@@ -89,4 +89,59 @@ extern "C"
 		ZeroFlux,
 		Periodic
 	};
+
+	enum class EPatternType
+	{
+		Null,
+		Brussellator,
+		GrayScott,
+	};
+
+	class CPatternInput2D
+	{
+	public:
+		CMemoryTile u;
+		CMemoryTile v;
+		CMemoryTile uNew;
+		CMemoryTile vNew;
+		CMemoryBuffer xGrid;
+		CMemoryBuffer yGrid;
+
+		EPatternType patternType;
+		EBoundaryCondition boundaryConditionType;
+
+		double uDiffusionCoefficient;
+		double vDiffusionCoefficient;
+
+		double dt;
+
+		double patternParam1;
+		double patternParam2;
+
+		explicit CPatternInput2D(CMemoryTile u,
+								CMemoryTile v,
+								CMemoryTile uNew,
+								CMemoryTile vNew,
+								CMemoryBuffer xGrid,
+								CMemoryBuffer yGrid,
+								EPatternType patternType,
+								EBoundaryCondition boundaryConditionType,
+								double uDiffusionCoefficient,
+								double vDiffusionCoefficient,
+								double dt,
+								double patternParam1 = 0.0,
+								double patternParam2 = 0.0)
+			: u(u), v(v), uNew(uNew), vNew(vNew), 
+			xGrid(xGrid), yGrid(yGrid),
+			patternType(patternType),
+			boundaryConditionType(boundaryConditionType),
+			uDiffusionCoefficient(uDiffusionCoefficient),
+			vDiffusionCoefficient(vDiffusionCoefficient),
+			dt(dt),
+			patternParam1(patternParam1),
+			patternParam2(patternParam2)
+		{
+
+		}
+	};
 }

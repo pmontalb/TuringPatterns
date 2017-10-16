@@ -43,9 +43,9 @@ namespace la
 
 			for (size_t m = 0; m < mat.size(); m++)
 			{
-				for (size_t row = 0; row < mat[m].size(); row++)
+				for (size_t col = 0; col < mat[m].size(); col++)
 				{
-					for (size_t col = 0; col < mat[m][row].size(); col++)
+					for (size_t row = 0; row < mat[m][col].size(); row++)
 					{
 						csvFile << mat[m][col][row] << ",";
 					}

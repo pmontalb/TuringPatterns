@@ -15,3 +15,14 @@ FINITEDIFFERENCE-ffa2693e
 *.db
 .idea
 /results.csv
+*.cache
+/CudaKernels/x64/Release/*.deps
+*.obj
+*.log
+*.pch
+*.pyc
+*.dll
+*.exp
+*.lib
+*.iobj
+*.ipdb
