@@ -65,6 +65,12 @@ EXTERN_C
 		case EMathDomain::Float:
 			switch (input.patternType)
 			{
+			case EPatternType::FitzHughNagumo:
+				CALL_PATTERN_FUNCTION(EPatternType::FitzHughNagumo);
+				break;
+			case EPatternType::Thomas:
+				CALL_PATTERN_FUNCTION(EPatternType::Thomas);
+				break;
 			case EPatternType::Schnakernberg:
 				CALL_PATTERN_FUNCTION(EPatternType::Schnakernberg);
 				break;
@@ -258,6 +264,27 @@ GLOBAL void __Iterate2D__(T* RESTRICT uNew, const T* RESTRICT u, const T* RESTRI
 }
 
 template <typename T>
+__device__ void FitzHughNagumoDynamic(T* RESTRICT uNew, T* RESTRICT vNew, const size_t coord, const T u, const T v, const T dt, const T param1, const T param2)
+{
+	uNew[coord] += dt * (u * (1.0 - u * u) - v + param1);
+	vNew[coord] += dt * param2 * (u - v);
+}
+
+template <typename T>
+__device__ void ThomasDynamic(T* RESTRICT uNew, T* RESTRICT vNew, const size_t coord, const T u, const T v, const T dt, const T param1, const T param2)
+{
+	constexpr T rho = { 13.0 };
+	constexpr T K = { 0.05 };
+	constexpr T alpha = { 1.5 };
+	constexpr T gamma = { 200.0 };
+
+	const T h = rho * u * v / (1.0 + u + K * u * u);
+
+	uNew[coord] += dt * gamma * (param1 - u - h);
+	vNew[coord] += dt * gamma * (alpha * (param2 - v) - h);
+}
+
+template <typename T>
 __device__ void SchnakenbergDynamic(T* RESTRICT uNew, T* RESTRICT vNew, const size_t coord, const T u, const T v, const T dt, const T param1, const T param2)
 {
 	const T u2v = u * u * v;
@@ -355,6 +382,12 @@ GLOBAL void __Iterate2DPattern__(T* RESTRICT uNew,
 			switch (patternType)
 			{
 			case EPatternType::Null:
+				break;
+			case EPatternType::FitzHughNagumo:
+				FitzHughNagumoDynamic<T>(uNew, vNew, COORD(i, j), u[COORD(i, j)], v[COORD(i, j)], dt, sourceParam1, sourceParam2);
+				break;
+			case EPatternType::Thomas:
+				ThomasDynamic<T>(uNew, vNew, COORD(i, j), u[COORD(i, j)], v[COORD(i, j)], dt, sourceParam1, sourceParam2);
 				break;
 			case EPatternType::Schnakernberg:
 				SchnakenbergDynamic<T>(uNew, vNew, COORD(i, j), u[COORD(i, j)], v[COORD(i, j)], dt, sourceParam1, sourceParam2);

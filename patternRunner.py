@@ -221,6 +221,98 @@ def run_schnakenberg(run=True):
     animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
 
 
+def run_thomas(run=True):
+    if run:
+        p = Popen([releaseDll] +
+                  ["-pattern", "Thomas"] +
+                  ["-boundaryCondition", "ZeroFlux"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
+                  ["-nIter", "100"] +
+                  ["-nIterPerRound", "100"] +
+                  ["-dt", "0.0005"] +
+                  ["-whiteNoiseScale", ".1"] +
+                  ["-uDiffusion", "1.0"] +
+                  ["-vDiffusion", "28"] +
+                  ["-patternParameter1", "150"] +
+                  ["-patternParameter2", "100"] +
+                  ["-solutionFile", "thomas.csv"])
+        p.communicate()
+
+    tensor = read_2D("thomas.csv")
+
+    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]),
+               #rstride=4, cstride=4,
+               show=True)
+
+
+def run_fitz_hugh_nagumo(run=True):
+    if run:
+        p = Popen([releaseDll] +
+                  ["-pattern", "FitzHughNagumo"] +
+                  ["-boundaryCondition", "ZeroFlux"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
+                  ["-nIter", "100"] +
+                  ["-nIterPerRound", "1000"] +
+                  ["-dt", "0.001"] +
+                  ["-whiteNoiseScale", ".05"] +
+                  ["-uDiffusion", "1"] +
+                  ["-vDiffusion", "100"] +
+                  ["-patternParameter1", "-0.005"] +
+                  ["-patternParameter2", "10.0"] +
+                  ["-solutionFile", "fhn.csv"])
+        p.communicate()
+
+    tensor = read_2D("fhn.csv")
+
+    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+
+
+def run_fitz_hugh_nagumo_low_beta(run=True):
+    if run:
+        p = Popen([releaseDll] +
+                  ["-pattern", "FitzHughNagumo"] +
+                  ["-boundaryCondition", "ZeroFlux"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
+                  ["-nIter", "100"] +
+                  ["-nIterPerRound", "1000"] +
+                  ["-dt", "0.001"] +
+                  ["-whiteNoiseScale", ".05"] +
+                  ["-uDiffusion", "1"] +
+                  ["-vDiffusion", "100"] +
+                  ["-patternParameter1", "0.01"] +
+                  ["-patternParameter2", ".25"] +
+                  ["-solutionFile", "fhnb.csv"])
+        p.communicate()
+
+    tensor = read_2D("fhnb.csv")
+
+    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+
+
+def run_fitz_hugh_nagumo_spatial(run=True):
+    if run:
+        p = Popen([releaseDll] +
+                  ["-pattern", "FitzHughNagumo"] +
+                  ["-boundaryCondition", "ZeroFlux"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
+                  ["-nIter", "100"] +
+                  ["-nIterPerRound", "1000"] +
+                  ["-dt", "0.001"] +
+                  ["-whiteNoiseScale", ".05"] +
+                  ["-uDiffusion", "1"] +
+                  ["-vDiffusion", "100"] +
+                  ["-patternParameter1", "0.01"] +
+                  ["-patternParameter2", "10"] +
+                  ["-solutionFile", "fhns.csv"])
+        p.communicate()
+
+    tensor = read_2D("fhns.csv")
+
+    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
 
 if __name__ == "__main__":
-    run_schnakenberg(run=False)
+    run_fitz_hugh_nagumo_spatial(run=True)

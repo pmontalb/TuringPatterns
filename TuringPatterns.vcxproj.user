@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-pattern Brussellator -xDimension 64 -yDimension 64 -nIter 100 -nIterPerRound 10 -dt 1.0 -whiteNoiseScale .05 -patternParameter1 4.5 -patternParameter2 6.75 -solutionFile "br.csv" -uDiffusion 2 -vDiffusion 16</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-pattern Thomas -xDimension 64 -yDimension 64 -nIter 100 -nIterPerRound 10 -dt 1.0 -whiteNoiseScale .05 -patternParameter1 4.5 -patternParameter2 6.75 -solutionFile "br.csv" -uDiffusion 2 -vDiffusion 16</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-pattern Brussellator -xDimension 64 -yDimension 64 -nIter 100 -nIterPerRound 10 -dt 1.0 -whiteNoiseScale .05 -patternParameter1 4.5 -patternParameter2 6.75 -solutionFile "br.csv" -uDiffusion 2 -vDiffusion 16</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-pattern Thomas -xDimension 64 -yDimension 64 -nIter 100 -nIterPerRound 10 -dt 1.0 -whiteNoiseScale .05 -patternParameter1 4.5 -patternParameter2 6.75 -solutionFile "br.csv" -uDiffusion 2 -vDiffusion 16</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

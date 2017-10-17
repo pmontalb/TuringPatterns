@@ -10,6 +10,7 @@
 #include "FiniteDifference\Pattern.h"
 
 #include <chrono>
+#include <functional>
 
 #pragma region Example parabolic PDE solvers
 
@@ -148,11 +149,59 @@ struct RunParameters
 
 typedef void (*MakeInitialConditionDelegate)(la::CMatrix& uInitialCondition, la::CMatrix& vInitialCondition, const RunParameters& params);
 
+double BinarySearch(const std::function<double(double)>& f, double a, double b, const double tolerance=1e-8)
+{
+	double fa = f(a);
+	double fb = f(b);
+
+	if (fa * fb > 0)
+		throw std::exception("f doesn't change sign");
+
+	double c = 0;
+	for (size_t i = 0; i < 1000; i++)
+	{
+		c = .5 * (a + b);
+		const double fc = f(c);
+		fa = f(a);
+		fb = f(b);
+
+		if (fabs(fc) < tolerance)
+			return c;
+
+		if (fa * fc > 0)
+			a = c;
+		else
+			b = c;
+	}
+
+	std::cout << "CONVERGENCE ERROR" << std::endl;
+	throw;
+}
+
 template<EPatternType patternType>
 void MakeInitialCondition(la::CMatrix& uInitialCondition, la::CMatrix& vInitialCondition, const RunParameters& params)
 {
 	switch (patternType)
 	{
+	case EPatternType::FitzHughNagumo:
+		uInitialCondition.Set(0.0);
+		vInitialCondition.Set(0.0);
+		break;
+	case EPatternType::Thomas:
+	{
+		auto f = [&](const double v)
+		{
+			const double u = -1.5 * (params.patternParameter2 - v) + params.patternParameter1;
+			const double h = 13.0 * u * v / (1.0 + u + 0.05 * u * u);
+			return h - (params.patternParameter1 - u);
+		};
+		const double v0 = BinarySearch(f, 0.0, 100.0);
+		const double u0 = -1.5 * (params.patternParameter2 - v0) + params.patternParameter1;
+
+		uInitialCondition.Set(u0);
+		vInitialCondition.Set(v0);
+	}
+		break;
 	case EPatternType::Schnakernberg:
 		uInitialCondition.Set(params.patternParameter1 + params.patternParameter2);
 		vInitialCondition.Set(params.patternParameter2 / ((params.patternParameter1 + params.patternParameter2) * (params.patternParameter1 + params.patternParameter2)));
@@ -280,6 +329,12 @@ void Run(const RunParameters& params)
 
 	switch (params.patternType)
 	{
+	case EPatternType::FitzHughNagumo:
+		makeInitialCondition = MakeInitialCondition<EPatternType::FitzHughNagumo>;
+		break;
+	case EPatternType::Thomas:
+		makeInitialCondition = MakeInitialCondition<EPatternType::Thomas>;
+		break;
 	case EPatternType::Schnakernberg:
 		makeInitialCondition = MakeInitialCondition<EPatternType::Schnakernberg>;
 		break;
@@ -313,6 +368,10 @@ int main(int argc, char** argv)
 				params.patternType = EPatternType::Brussellator;
 			else if (!strcmp(argv[c], "Schnakenberg"))
 				params.patternType = EPatternType::Schnakernberg;
+			else if (!strcmp(argv[c], "Thomas"))
+				params.patternType = EPatternType::Thomas;
+			else if (!strcmp(argv[c], "FitzHughNagumo"))
+				params.patternType = EPatternType::FitzHughNagumo;
 		}
 		if (!strcmp(argv[c], "-boundaryCondition"))
 		{
