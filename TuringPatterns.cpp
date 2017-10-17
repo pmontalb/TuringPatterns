@@ -153,6 +153,10 @@ void MakeInitialCondition(la::CMatrix& uInitialCondition, la::CMatrix& vInitialC
 {
 	switch (patternType)
 	{
+	case EPatternType::Schnakernberg:
+		uInitialCondition.Set(params.patternParameter1 + params.patternParameter2);
+		vInitialCondition.Set(params.patternParameter2 / ((params.patternParameter1 + params.patternParameter2) * (params.patternParameter1 + params.patternParameter2)));
+		break;
 	case EPatternType::Brussellator:
 		uInitialCondition.Set(params.patternParameter1);
 		vInitialCondition.Set(params.patternParameter2 / params.patternParameter1);
@@ -276,6 +280,9 @@ void Run(const RunParameters& params)
 
 	switch (params.patternType)
 	{
+	case EPatternType::Schnakernberg:
+		makeInitialCondition = MakeInitialCondition<EPatternType::Schnakernberg>;
+		break;
 	case EPatternType::Brussellator:
 		makeInitialCondition = MakeInitialCondition<EPatternType::Brussellator>;
 		break;
@@ -304,6 +311,8 @@ int main(int argc, char** argv)
 				params.patternType = EPatternType::GrayScott;
 			else if (!strcmp(argv[c], "Brussellator"))
 				params.patternType = EPatternType::Brussellator;
+			else if (!strcmp(argv[c], "Schnakenberg"))
+				params.patternType = EPatternType::Schnakernberg;
 		}
 		if (!strcmp(argv[c], "-boundaryCondition"))
 		{

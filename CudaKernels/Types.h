@@ -93,6 +93,7 @@ extern "C"
 	enum class EPatternType
 	{
 		Null,
+		Schnakernberg,
 		Brussellator,
 		GrayScott,
 	};

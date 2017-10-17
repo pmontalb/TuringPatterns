@@ -15,6 +15,9 @@ EXTERN_C
 }
 
 template <typename T>
+__device__  void SchnakenbergDynamic(T* RESTRICT uNew, T* RESTRICT vNew, const size_t coord, const T u, const T v, const T dt, const T param1, const T param2);
+
+template <typename T>
 __device__  void BrussellatorDynamic(T* RESTRICT uNew, T* RESTRICT vNew, const size_t coord, const T u, const T v, const T dt, const T param1, const T param2);
 
 template <typename T>

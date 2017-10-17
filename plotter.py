@@ -97,16 +97,16 @@ def animate_3D(z, x, y, rstride=1, cstride=1, show=False):
         plt.show()
 
 
-def animate_colormap(z, x, y, show=False):
+def animate_colormap(z, x, y, cmap='PuBu_r', show=False):
     fig, ax = plt.subplots()
     x, y = np.meshgrid(x, y)
-    ax.pcolormesh(x, y, z[0], shading='gouraud')
+    ax.pcolormesh(x, y, z[0], shading='gouraud', cmap=cmap)
 
     def update_line(i):
         if i >= z.shape[0]:
             return None,
         ax.clear()
-        ax.pcolormesh(x, y, z[i], shading='gouraud')
+        ax.pcolormesh(x, y, z[i], shading='gouraud', cmap=cmap)
         return None,
 
     ani = animation.FuncAnimation(fig, update_line, np.arange(1, 200), interval=25, blit=False)

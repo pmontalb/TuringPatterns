@@ -157,8 +157,8 @@ def run_brussellator_stripes(run=True):
         p = Popen([releaseDll] +
                   ["-pattern", "Brussellator"] +
                   ["-boundaryCondition", "ZeroFlux"] +
-                  ["-xDimension", "64"] +
-                  ["-yDimension", "64"] +
+                  ["-xDimension", "256"] +
+                  ["-yDimension", "256"] +
                   ["-nIter", "100"] +
                   ["-nIterPerRound", "100"] +
                   ["-dt", "0.01"] +
@@ -198,5 +198,29 @@ def run_brussellator_dots(run=True):
     animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
 
 
+def run_schnakenberg(run=True):
+    if run:
+        p = Popen([releaseDll] +
+                  ["-pattern", "Schnakenberg"] +
+                  ["-boundaryCondition", "ZeroFlux"] +
+                  ["-xDimension", "256"] +
+                  ["-yDimension", "256"] +
+                  ["-nIter", "100"] +
+                  ["-nIterPerRound", "100"] +
+                  ["-dt", "0.01"] +
+                  ["-whiteNoiseScale", ".05"] +
+                  ["-uDiffusion", "1.0"] +
+                  ["-vDiffusion", "10"] +
+                  ["-patternParameter1", ".1"] +
+                  ["-patternParameter2", ".9"] +
+                  ["-solutionFile", "schnakenberg.csv"])
+        p.communicate()
+
+    tensor = read_2D("schnakenberg.csv")
+
+    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+
+
+
 if __name__ == "__main__":
-    run_brussellator_dots(run=True)
+    run_schnakenberg(run=False)

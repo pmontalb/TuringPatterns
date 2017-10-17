@@ -65,6 +65,9 @@ EXTERN_C
 		case EMathDomain::Float:
 			switch (input.patternType)
 			{
+			case EPatternType::Schnakernberg:
+				CALL_PATTERN_FUNCTION(EPatternType::Schnakernberg);
+				break;
 			case EPatternType::Brussellator:
 				CALL_PATTERN_FUNCTION(EPatternType::Brussellator);
 				break;
@@ -255,6 +258,15 @@ GLOBAL void __Iterate2D__(T* RESTRICT uNew, const T* RESTRICT u, const T* RESTRI
 }
 
 template <typename T>
+__device__ void SchnakenbergDynamic(T* RESTRICT uNew, T* RESTRICT vNew, const size_t coord, const T u, const T v, const T dt, const T param1, const T param2)
+{
+	const T u2v = u * u * v;
+
+	uNew[coord] += dt * (param1 - u + u2v);
+	vNew[coord] += dt * (param2 - u2v);
+}
+
+template <typename T>
 __device__ void BrussellatorDynamic(T* RESTRICT uNew, T* RESTRICT vNew, const size_t coord, const T u, const T v, const T dt, const T param1, const T param2)
 {
 	const T u2v = u * u * v;
@@ -343,6 +355,9 @@ GLOBAL void __Iterate2DPattern__(T* RESTRICT uNew,
 			switch (patternType)
 			{
 			case EPatternType::Null:
+				break;
+			case EPatternType::Schnakernberg:
+				SchnakenbergDynamic<T>(uNew, vNew, COORD(i, j), u[COORD(i, j)], v[COORD(i, j)], dt, sourceParam1, sourceParam2);
 				break;
 			case EPatternType::Brussellator:
 				BrussellatorDynamic<T>(uNew, vNew, COORD(i, j), u[COORD(i, j)], v[COORD(i, j)], dt, sourceParam1, sourceParam2);
