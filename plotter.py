@@ -47,7 +47,7 @@ def plot(z, x, title="", x_label="", y_label="", show_legend=False, show=False):
         plt.show()
 
 
-def animate(z, x, show=False):
+def animate(z, x, show=False, save=False, name=""):
     fig, ax = plt.subplots()
 
     line, = ax.plot(x, z[:, 0])
@@ -68,15 +68,18 @@ def animate(z, x, show=False):
     if show:
         plt.show()
 
+    if save:
+        ani.save(name, writer='imagemagick', fps=60)
 
-def animate_3D(z, x, y, rstride=1, cstride=1, show=False):
+
+def animate_3D(z, x, y, rstride=1, cstride=1, cmap=cm.coolwarm, show=False, save=False, name=""):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
     # Create X and Y data
     x_grid, y_grid = np.meshgrid(x, y)
 
-    line = ax.plot_surface(x_grid, y_grid, z[0], cmap=cm.coolwarm, rstride=rstride, cstride=cstride, antialiased=True)
+    line = ax.plot_surface(x_grid, y_grid, z[0], cmap=cmap, rstride=rstride, cstride=cstride, antialiased=True)
 
     def update_line(i):
         if i >= z.shape[0]:
@@ -85,34 +88,34 @@ def animate_3D(z, x, y, rstride=1, cstride=1, show=False):
         l = ax.plot_surface(x_grid, y_grid, z[i], cmap=cm.coolwarm,rstride=rstride, cstride=cstride, antialiased=True)
         return l,
 
-    # Init only required for blitting to give a clean slate.
-    def init():
-        ax.clear()
-        l = ax.plot_surface(x_grid, y_grid, z[0], cmap=cm.coolwarm, rstride=rstride, cstride=cstride, antialiased=True)
-        return l,
-
-    ani = animation.FuncAnimation(fig, update_line, np.arange(1, 200), init_func=init, interval=25, blit=False)
+    ani = animation.FuncAnimation(fig, update_line, np.arange(1, 200), interval=25, blit=False)
 
     if show:
         plt.show()
 
+    if save:
+        ani.save(name, writer='imagemagick', fps=60)
 
-def animate_colormap(z, x, y, cmap='PuBu_r', show=False):
+
+def animate_colormap(z, x, y, cmap='PuBu_r', shading='gouraud', show=False, save=False, name=""):
     fig, ax = plt.subplots()
     x, y = np.meshgrid(x, y)
-    ax.pcolormesh(x, y, z[0], shading='gouraud', cmap=cmap)
+    ax.pcolormesh(x, y, z[0], shading=shading, cmap=cmap)
 
     def update_line(i):
         if i >= z.shape[0]:
             return None,
         ax.clear()
-        ax.pcolormesh(x, y, z[i], shading='gouraud', cmap=cmap)
+        ax.pcolormesh(x, y, z[i], shading=shading, cmap=cmap)
         return None,
 
     ani = animation.FuncAnimation(fig, update_line, np.arange(1, 200), interval=25, blit=False)
 
     if show:
         plt.show()
+
+    if save:
+        ani.save(name, writer='imagemagick', fps=60)
 
 
 

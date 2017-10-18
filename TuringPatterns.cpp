@@ -8,6 +8,7 @@
 #include "CudaManager\Tensor.h"
 #include "FiniteDifference\Parabolic.h"
 #include "FiniteDifference\Pattern.h"
+#include "cnpy.h"
 
 #include <chrono>
 #include <functional>
@@ -44,7 +45,7 @@ void Example1D()
 		toPlot.columns[n]->ReadFrom(solution);
 	}
 
-	toPlot.ToCsv("results1D.csv");
+	cnpy::npy_save("results1D.npy", toPlot.Get(), "w");
 }
 
 void Example2D()
@@ -102,9 +103,9 @@ void Example2D()
 
 
 	t1 = high_resolution_clock::now();
-	toPlot.ToCsv("results2D.csv");
+	cnpy::npy_save("results2D.npy", &toPlot.Get()[0], { toPlot.nMatrices(), toPlot.nCols(), toPlot.nRows() }, "w");
 	t2 = high_resolution_clock::now();
-	std::cout << "Saved csv in " << duration_cast<duration<double>>(t2 - t1).count() << " seconds." << std::endl;
+	std::cout << "Saved NPY in " << duration_cast<duration<double>>(t2 - t1).count() << " seconds." << std::endl;
 
 	high_resolution_clock::time_point end = high_resolution_clock::now();
 
@@ -257,11 +258,11 @@ void RunDelegate(MakeInitialConditionDelegate makeInitialCondition, const RunPar
 
 	high_resolution_clock::time_point t2 = high_resolution_clock::now(); \
 
-	std::cout << "Created grid in " << duration_cast<duration<double>>(t2 - t1).count() << " seconds." << std::endl; \
-	// ***********************************
+		std::cout << "Created grid in " << duration_cast<duration<double>>(t2 - t1).count() << " seconds." << std::endl; \
+		// ***********************************
 
-	// ***************** Make Initial Condition ******************
-	t1 = high_resolution_clock::now();
+		// ***************** Make Initial Condition ******************
+		t1 = high_resolution_clock::now();
 
 	CMatrix whiteNoise = la::RandomGaussian(xGrid.size(), yGrid.size());
 	whiteNoise.Scale(params.whiteNoiseScale);
@@ -280,7 +281,7 @@ void RunDelegate(MakeInitialConditionDelegate makeInitialCondition, const RunPar
 	// **************** Initialize Solver ***************
 	t1 = high_resolution_clock::now();
 
-	fd::CPatternData2D input(xGrid, yGrid, uInitialCondition, vInitialCondition, 
+	fd::CPatternData2D input(xGrid, yGrid, uInitialCondition, vInitialCondition,
 		params.uDiffusion, params.vDiffusion, params.patternType, params.boundaryCondition);
 	fd::CPatternSolver2D solver(input, params.dt);
 
@@ -311,7 +312,7 @@ void RunDelegate(MakeInitialConditionDelegate makeInitialCondition, const RunPar
 
 	// ************** Save solution to CSV ************
 	t1 = high_resolution_clock::now();
-	toPlot.ToCsv(params.solutionFile);
+	cnpy::npy_save(params.solutionFile, &toPlot.Get()[0], { toPlot.nMatrices(), toPlot.nCols(), toPlot.nRows() }, "w");
 	t2 = high_resolution_clock::now();
 	std::cout << "Saved csv in " << duration_cast<duration<double>>(t2 - t1).count() << " seconds." << std::endl;
 

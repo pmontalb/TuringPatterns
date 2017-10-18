@@ -83,7 +83,7 @@ namespace la
 		dev::detail::AutoCopy(columns[0]->buffer, rhs.buffer);
 	}
 
-	std::vector<std::vector<double>> CMatrix::Get() const
+	std::vector<double> CMatrix::Get() const
 	{
 		dev::detail::ThreadSynchronize();
 
@@ -93,9 +93,7 @@ namespace la
 		dev::detail::AllocHost(newBuf);
 		dev::detail::AutoCopy(newBuf, buffer);
 
-		std::vector<std::vector<double>> ret(nCols());
-		for (size_t i = 0; i < nCols(); i++)
-			ret[i].resize(nRows());
+		std::vector<double> ret(nRows() * nCols());
 		
 		switch (buffer.mathDomain)
 		{
@@ -104,7 +102,7 @@ namespace la
 			double* ptr = (double*)newBuf.pointer;
 			for (size_t j = 0; j < nCols(); j++)
 				for (size_t i = 0; i < nRows(); i++)
-					ret[j][i] = ptr[i + nRows() * j];
+					ret[i + nRows() * j] = ptr[i + nRows() * j];
 		}
 		break;
 		case EMathDomain::Float:
@@ -112,7 +110,7 @@ namespace la
 			float* ptr = (float*)newBuf.pointer;
 			for (size_t j = 0; j < nCols(); j++)
 				for (size_t i = 0; i < nRows(); i++)
-					ret[j][i] = ptr[i + nRows() * j];
+					ret[i + nRows() * j] = ptr[i + nRows() * j];
 		}
 		break;
 		default:
@@ -134,11 +132,11 @@ namespace la
 		auto mat = Get();
 
 		std::cout << "********* " << label << " ***********" << std::endl;
-		for (size_t j = 0; j < mat.size(); j++)
+		for (size_t j = 0; j < nCols(); j++)
 		{
 			std::cout << "\t";
-			for (size_t i = 0; i < mat[j].size(); i++)
-				std::cout << " v[" << i << "][" << j << "] = " << mat[j][i];
+			for (size_t i = 0; i < nRows(); i++)
+				std::cout << " v[" << i << "][" << j << "] = " << mat[i + nRows() * j];
 			std::cout << std::endl;
 		}
 		std::cout << "**********************" << std::endl;

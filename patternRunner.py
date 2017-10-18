@@ -1,43 +1,13 @@
 import numpy as np
 from subprocess import Popen
 import os
-from plotter import animate_colormap, animate_3D
+from plotter import animate_colormap
 
 debugDll = os.getcwd() + "\\x64\\Debug\\TuringPatterns.exe"
 releaseDll = os.getcwd() + "\\x64\\Release\\TuringPatterns.exe"
 
 
-def read_1D(file_name):
-    mat = []
-    with open(os.getcwd() + "\\" + file_name) as f:
-        lines = f.readlines()
-        for line in lines:
-            mat.append([float(x) for x in line.split(",") if x not in ["", "\n"]])
-    mat = np.array(mat)
-    return mat
-
-
-def read_2D(file_name):
-    tensor = []
-
-    n_matrices = 0
-    n_rows = 0
-    with open(os.getcwd() + "\\" + file_name) as f:
-        lines = f.readlines()
-        for line in lines:
-            if len(line.split(",")) == 1:
-                n_matrices += 1
-                continue
-            elif n_matrices == 0:
-                n_rows += 1
-
-            tensor.append([float(x) for x in line.split(",") if x not in ["", "\n"]])
-    tensor = np.array(tensor)
-    tensor = tensor.reshape((n_matrices, n_rows, tensor.shape[1]))
-    return tensor
-
-
-def run_gray_scott_bacteria(run=True):
+def run_gray_scott_bacteria(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "GrayScott"] +
@@ -52,38 +22,21 @@ def run_gray_scott_bacteria(run=True):
                   ["-vDiffusion", ".08"] +
                   ["-patternParameter1", "0.035"] +
                   ["-patternParameter2", ".065"] +
-                  ["-solutionFile", "bacteria.csv"])
+                  ["-solutionFile", "bacteria.npy"])
         p.communicate()
 
-    tensor = read_2D("bacteria.csv")
+    tensor = np.load("bacteria.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), True)
-
-
-def run_gray_scott_stripes(run=True):
-    if run:
-        p = Popen([releaseDll] +
-                  ["-pattern", "GrayScott"] +
-                  ["-boundaryCondition", "Periodic"] +
-                  ["-xDimension", "128"] +
-                  ["-yDimension", "16"] +
-                  ["-nIter", "100"] +
-                  ["-nIterPerRound", "100"] +
-                  ["-dt", "1.0"] +
-                  ["-whiteNoiseScale", ".05"] +
-                  ["-uDiffusion", ".16"] +
-                  ["-vDiffusion", ".08"] +
-                  ["-patternParameter1", "0.035"] +
-                  ["-patternParameter2", ".065"] +
-                  ["-solutionFile", "stripes.csv"])
-        p.communicate()
-
-    tensor = read_2D("stripes.csv")
-
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="bacteria.gif")
 
 
-def run_gray_scott_bacteria2(run=True):
+def run_gray_scott_bacteria2(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "GrayScott"] +
@@ -98,44 +51,113 @@ def run_gray_scott_bacteria2(run=True):
                   ["-vDiffusion", ".06"] +
                   ["-patternParameter1", "0.035"] +
                   ["-patternParameter2", ".065"] +
-                  ["-solutionFile", "bacteria2.csv"])
+                  ["-solutionFile", "bacteria2.npy"])
         p.communicate()
 
-    tensor = read_2D("bacteria2.csv")
+    tensor = np.load("bacteria2.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="bacteria2.gif")
 
 
-def run_gray_scott_coral(run=True):
+def run_gray_scott_coral(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "GrayScott"] +
                   ["-boundaryCondition", "Periodic"] +
-                  ["-xDimension", "32"] +
-                  ["-yDimension", "32"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
                   ["-nIter", "100"] +
                   ["-nIterPerRound", "100"] +
-                  ["-dt", ".05"] +
+                  ["-dt", ".5"] +
                   ["-whiteNoiseScale", ".05"] +
                   ["-uDiffusion", ".19"] +
                   ["-vDiffusion", ".05"] +
                   ["-patternParameter1", ".06"] +
                   ["-patternParameter2", ".02"] +
-                  ["-solutionFile", "coral.csv"])
+                  ["-solutionFile", "coral.npy"])
         p.communicate()
 
-    tensor = read_2D("coral.csv")
+    tensor = np.load("coral.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="coral.gif")
 
 
-def run_gray_scott_lines(run=True):
+def run_gray_scott_coral2(run=True, save=False):
+    if run:
+        p = Popen([releaseDll] +
+                  ["-pattern", "GrayScott"] +
+                  ["-boundaryCondition", "ZeroFlux"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
+                  ["-nIter", "100"] +
+                  ["-nIterPerRound", "100"] +
+                  ["-dt", ".5"] +
+                  ["-whiteNoiseScale", ".05"] +
+                  ["-uDiffusion", ".19"] +
+                  ["-vDiffusion", ".05"] +
+                  ["-patternParameter1", ".01"] +
+                  ["-patternParameter2", ".015"] +
+                  ["-solutionFile", "coral2.npy"])
+        p.communicate()
+
+    tensor = np.load("coral2.npy")
+
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="coral2.gif")
+
+
+def run_gray_scott_coral3(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "GrayScott"] +
                   ["-boundaryCondition", "Periodic"] +
-                  ["-xDimension", "64"] +
-                  ["-yDimension", "64"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
+                  ["-nIter", "100"] +
+                  ["-nIterPerRound", "100"] +
+                  ["-dt", ".5"] +
+                  ["-whiteNoiseScale", ".05"] +
+                  ["-uDiffusion", ".19"] +
+                  ["-vDiffusion", ".05"] +
+                  ["-patternParameter1", ".03"] +
+                  ["-patternParameter2", ".025"] +
+                  ["-solutionFile", "coral3.npy"])
+        p.communicate()
+
+    tensor = np.load("coral3.npy")
+
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="coral3.gif")
+
+def run_gray_scott_lines(run=True, save=False):
+    if run:
+        p = Popen([releaseDll] +
+                  ["-pattern", "GrayScott"] +
+                  ["-boundaryCondition", "Periodic"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
                   ["-nIter", "100"] +
                   ["-nIterPerRound", "100"] +
                   ["-dt", "1"] +
@@ -144,15 +166,21 @@ def run_gray_scott_lines(run=True):
                   ["-vDiffusion", ".08"] +
                   ["-patternParameter1", ".05"] +
                   ["-patternParameter2", ".065"] +
-                  ["-solutionFile", "lines.csv"])
+                  ["-solutionFile", "lines.npy"])
         p.communicate()
 
-    tensor = read_2D("lines.csv")
+    tensor = np.load("lines.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="lines.gif")
 
 
-def run_brussellator_stripes(run=True):
+def run_brussellator_stripes(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "Brussellator"] +
@@ -167,21 +195,27 @@ def run_brussellator_stripes(run=True):
                   ["-vDiffusion", "16"] +
                   ["-patternParameter1", "4.5"] +
                   ["-patternParameter2", "7.5"] +
-                  ["-solutionFile", "br_stripes.csv"])
+                  ["-solutionFile", "br_stripes.npy"])
         p.communicate()
 
-    tensor = read_2D("br_stripes.csv")
+    tensor = np.load("br_stripes.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="br_stripes.gif")
 
 
-def run_brussellator_dots(run=True):
+def run_brussellator_dots(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "Brussellator"] +
-                  ["-boundaryCondition", "ZeroFlux"] +
-                  ["-xDimension", "64"] +
-                  ["-yDimension", "64"] +
+                  ["-boundaryCondition", "Periodic"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
                   ["-nIter", "100"] +
                   ["-nIterPerRound", "100"] +
                   ["-dt", "0.01"] +
@@ -190,38 +224,50 @@ def run_brussellator_dots(run=True):
                   ["-vDiffusion", "16"] +
                   ["-patternParameter1", "4.5"] +
                   ["-patternParameter2", "12"] +
-                  ["-solutionFile", "br_dots.csv"])
+                  ["-solutionFile", "br_dots.npy"])
         p.communicate()
 
-    tensor = read_2D("br_dots.csv")
+    tensor = np.load("br_dots.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='Spectral',
+                     show=not save,
+                     save=save,
+                     name="br_dots.gif")
 
 
-def run_schnakenberg(run=True):
+def run_schnakenberg(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "Schnakenberg"] +
                   ["-boundaryCondition", "ZeroFlux"] +
-                  ["-xDimension", "256"] +
-                  ["-yDimension", "256"] +
+                  ["-xDimension", "128"] +
+                  ["-yDimension", "128"] +
                   ["-nIter", "100"] +
-                  ["-nIterPerRound", "100"] +
+                  ["-nIterPerRound", "200"] +
                   ["-dt", "0.01"] +
                   ["-whiteNoiseScale", ".05"] +
                   ["-uDiffusion", "1.0"] +
                   ["-vDiffusion", "10"] +
                   ["-patternParameter1", ".1"] +
                   ["-patternParameter2", ".9"] +
-                  ["-solutionFile", "schnakenberg.csv"])
+                  ["-solutionFile", "schnakenberg.npy"])
         p.communicate()
 
-    tensor = read_2D("schnakenberg.csv")
+    tensor = np.load("schnakenberg.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='seismic',
+                     show=not save,
+                     save=save,
+                     name="schnakenberg.gif")
 
 
-def run_thomas(run=True):
+def run_thomas(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "Thomas"] +
@@ -236,17 +282,21 @@ def run_thomas(run=True):
                   ["-vDiffusion", "28"] +
                   ["-patternParameter1", "150"] +
                   ["-patternParameter2", "100"] +
-                  ["-solutionFile", "thomas.csv"])
+                  ["-solutionFile", "thomas.npy"])
         p.communicate()
 
-    tensor = read_2D("thomas.csv")
+    tensor = np.load("thomas.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]),
-               #rstride=4, cstride=4,
-               show=True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='seismic',
+                     show=not save,
+                     save=save,
+                     name="schnakenberg.gif")
 
 
-def run_fitz_hugh_nagumo(run=True):
+def run_fitz_hugh_nagumo(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "FitzHughNagumo"] +
@@ -261,15 +311,21 @@ def run_fitz_hugh_nagumo(run=True):
                   ["-vDiffusion", "100"] +
                   ["-patternParameter1", "-0.005"] +
                   ["-patternParameter2", "10.0"] +
-                  ["-solutionFile", "fhn.csv"])
+                  ["-solutionFile", "fhn.npy"])
         p.communicate()
 
-    tensor = read_2D("fhn.csv")
+    tensor = np.load("fhn.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="fhn.gif")
 
 
-def run_fitz_hugh_nagumo_low_beta(run=True):
+def run_fitz_hugh_nagumo_low_beta(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "FitzHughNagumo"] +
@@ -284,15 +340,21 @@ def run_fitz_hugh_nagumo_low_beta(run=True):
                   ["-vDiffusion", "100"] +
                   ["-patternParameter1", "0.01"] +
                   ["-patternParameter2", ".25"] +
-                  ["-solutionFile", "fhnb.csv"])
+                  ["-solutionFile", "fhnb.npy"])
         p.communicate()
 
-    tensor = read_2D("fhnb.csv")
+    tensor = np.load("fhnb.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="fhnb.gif")
 
 
-def run_fitz_hugh_nagumo_spatial(run=True):
+def run_fitz_hugh_nagumo_spatial(run=True, save=False):
     if run:
         p = Popen([releaseDll] +
                   ["-pattern", "FitzHughNagumo"] +
@@ -307,12 +369,19 @@ def run_fitz_hugh_nagumo_spatial(run=True):
                   ["-vDiffusion", "100"] +
                   ["-patternParameter1", "0.01"] +
                   ["-patternParameter2", "10"] +
-                  ["-solutionFile", "fhns.csv"])
+                  ["-solutionFile", "fhns.npy"])
         p.communicate()
 
-    tensor = read_2D("fhns.csv")
+    tensor = np.load("fhns.npy")
 
-    animate_colormap(tensor, np.linspace(0.0, 1.0, tensor.shape[2]), np.linspace(0.0, 1.0, tensor.shape[1]), show=True)
+    animate_colormap(tensor,
+                     np.linspace(0.0, 1.0, tensor.shape[2]),
+                     np.linspace(0.0, 1.0, tensor.shape[1]),
+                     cmap='RdBu',
+                     show=not save,
+                     save=save,
+                     name="fhns.gif")
+
 
 if __name__ == "__main__":
-    run_fitz_hugh_nagumo_spatial(run=True)
+    run_gray_scott_coral3(run=False, save=True)

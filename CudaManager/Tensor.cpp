@@ -73,7 +73,7 @@ namespace la
 		dev::detail::AutoCopy(buffer, rhs.GetBuffer());
 	}
 
-	std::vector<std::vector<std::vector<double>>> CTensor::Get() const
+	std::vector<double> CTensor::Get() const
 	{
 		dev::detail::ThreadSynchronize();
 
@@ -83,13 +83,7 @@ namespace la
 		dev::detail::AllocHost(newBuf);
 		dev::detail::AutoCopy(newBuf, buffer);
 
-		std::vector<std::vector<std::vector<double>>> ret(nMatrices());
-		for (size_t i = 0; i < nMatrices(); i++)
-		{
-			ret[i].resize(nCols());
-			for (size_t j = 0; j < nCols(); j++)
-				ret[i][j].resize(nRows());
-		}
+		std::vector<double> ret(nMatrices() * nRows() * nCols());
 
 		switch (buffer.mathDomain)
 		{
@@ -99,7 +93,7 @@ namespace la
 			for (size_t k = 0; k < nMatrices(); k++)
 				for (size_t j = 0; j < nCols(); j++)
 					for (size_t i = 0; i < nRows(); i++)
-						ret[k][j][i] = ptr[i + nRows() * (j + nCols()* k)];
+						ret[i + nRows() * (j + nCols()* k)] = ptr[i + nRows() * (j + nCols()* k)];
 		}
 		break;
 		case EMathDomain::Float:
@@ -108,7 +102,7 @@ namespace la
 			for (size_t k = 0; k < nMatrices(); k++)
 				for (size_t j = 0; j < nCols(); j++)
 					for (size_t i = 0; i < nRows(); i++)
-						ret[k][j][i] = ptr[i + nRows() * (j + nCols()* k)];
+						ret[i + nRows() * (j + nCols()* k)] = ptr[i + nRows() * (j + nCols()* k)];
 		}
 		break;
 		default:
@@ -120,7 +114,7 @@ namespace la
 		return ret;
 	}
 
-	std::vector<std::vector<double>> CTensor::Get(size_t matrix) const
+	std::vector<double> CTensor::Get(size_t matrix) const
 	{
 		return matrices[matrix]->Get();
 	}
@@ -130,13 +124,13 @@ namespace la
 		auto mat = Get();
 
 		std::cout << "********* " << label << " ***********" << std::endl;
-		for (size_t k = 0; k < mat.size(); k++)
+		for (size_t k = 0; k < nMatrices(); k++)
 		{
-			for (size_t j = 0; j < mat[k].size(); j++)
+			for (size_t j = 0; j < nCols(); j++)
 			{
 				std::cout << "\t";
-				for (size_t i = 0; i < mat[k][j].size(); i++)
-					std::cout << " v[" << i << "][" << j << "][" << k << "] = " << mat[k][j][i];
+				for (size_t i = 0; i < nRows(); i++)
+					std::cout << " v[" << i << "][" << j << "][" << k << "] = " << mat[i + nRows() * (j + nCols()* k)];
 				std::cout << std::endl;
 			}
 		}

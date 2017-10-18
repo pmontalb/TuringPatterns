@@ -28,36 +28,11 @@ namespace la
 
 		CTensor(const CVector& rhs);
 
-		std::vector<std::vector<std::vector<double>>> Get() const;
+		std::vector<double> Get() const;
 
-		std::vector<std::vector<double>> Get(size_t matrix) const;
+		std::vector<double> Get(size_t matrix) const;
 
 		void Print(const std::string& label = "") const;
-
-		inline void ToCsv(const std::string& fileName) const
-		{
-			auto mat = Get();
-
-			std::ofstream csvFile;
-			csvFile.open(fileName);
-
-			for (size_t m = 0; m < mat.size(); m++)
-			{
-				for (size_t col = 0; col < mat[m].size(); col++)
-				{
-					for (size_t row = 0; row < mat[m][col].size(); row++)
-					{
-						csvFile << mat[m][col][row] << ",";
-					}
-
-					csvFile << std::endl;
-				}
-
-				csvFile << std::endl;
-			}
-
-			csvFile.close();
-		}
 
 		virtual ~CTensor();
 

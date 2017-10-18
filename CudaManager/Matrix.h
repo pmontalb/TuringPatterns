@@ -59,31 +59,11 @@ namespace la
 
 		void RandomGaussian(unsigned seed = 1234);
 
-		std::vector<std::vector<double>> Get() const;
+		std::vector<double> Get() const;
 
 		std::vector<double> Get(size_t column) const;
 
 		void Print(const std::string& label = "") const;
-
-		inline void ToCsv(const std::string& fileName) const
-		{
-			auto mat = Get();
-
-			std::ofstream csvFile;
-			csvFile.open(fileName);
-
-			for (size_t row = 0; row < mat[0].size(); row++)
-			{
-				for (size_t col = 0; col < mat.size(); col++)
-				{
-					csvFile << mat[col][row] << ",";
-				}
-
-				csvFile << std::endl;
-			}
-
-			csvFile.close();
-		}
 
 		virtual ~CMatrix();
 
