@@ -2,10 +2,9 @@
 //
 
 #include "stdafx.h"
-#include "CudaManager\DeviceManager.h"
-#include "CudaManager\Vector.h"
-#include "CudaManager\Matrix.h"
-#include "CudaManager\Tensor.h"
+#include <CudaManager\Vector.h>
+#include <CudaManager\ColumnWiseMatrix.h>
+#include <CudaManager\Tensor.h>
 #include "FiniteDifference\Parabolic.h"
 #include "FiniteDifference\Pattern.h"
 #include "cnpy.h"
