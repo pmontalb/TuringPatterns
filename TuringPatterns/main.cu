@@ -308,7 +308,8 @@ void runner(const RunParameters& params)
 
 	auto _xGrid = xGrid.Get();
 	auto _yGrid = yGrid.Get();
-	chart.setAxesLimits(_xGrid.front(), _xGrid.back(), _yGrid.front(), _yGrid.back(), 0.0, 1.0);
+	auto _ic = uInitialCondition.Get();
+	chart.setAxesLimits(_xGrid.front(), _xGrid.back(), _yGrid.front(), _yGrid.back(), .95 * *std::min_element(_ic.begin(), _ic.end()), 1.05 * *std::max_element(_ic.begin(), _ic.end()));
 	chart.setAxesTitles("x-axis", "y-axis", "z-axis");
 
 	forge::Surface surf = chart.surface(_xGrid.size(), _yGrid.size(), forge::f32);
@@ -359,6 +360,11 @@ int main(int argc, char** argv)
 	auto patternType = parsePatternType(ap.GetArgumentValue<std::string>("-pattern", "GrayScott"));
 
 	RunParameters rp;
+	std::string bc = ap.GetArgumentValue<std::string>("-bc", "Periodic");
+	if (bc == "Periodic")
+		rp.boundaryCondition = BoundaryConditionType::Periodic;
+	if (bc == "ZeroFlux")
+		rp.boundaryCondition = BoundaryConditionType::Neumann;
 	rp.dt = ap.GetArgumentValue<double>("-dt", rp.dt);
 	rp.nIter = ap.GetArgumentValue<double>("-nIter", rp.nIter);
 	rp.nIterPerRound = ap.GetArgumentValue<double>("-nIterPerRound", rp.nIterPerRound);
