@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-pattern FitzHughNagumo -bc ZeroFlux -dt 0.1 -nIter 4096 -nIterPerRound 5 -xd 100 -yd 100 -wns 0.05 -ud 1 -vd 100 -p1 0.01 -p2 10</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-pattern GrayScott -bc ZeroFlux -dt 1 -nIter 4096 -nIterPerRound 10 -xd 100 -yd 100 -wns 0.05 -ud 0.16 -vd 0.08 -p1 0.035 -p2 0.065</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

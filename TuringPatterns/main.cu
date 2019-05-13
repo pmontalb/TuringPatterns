@@ -2,10 +2,6 @@
 #include <algorithm>
 #include <chrono>
 
-#include <forge.h>
-#define USE_FORGE_CUDA_COPY_HELPERS
-#include <ComputeCopy.h>
-
 #include <Vector.h>
 #include <ColumnWiseMatrix.h>
 
@@ -17,6 +13,11 @@
 
 #include <PatternType.h>
 #include <PatternDynamic.cuh>
+#include <ForgeHelpers.cuh>
+
+#include <forge.h>
+#define USE_FORGE_CUDA_COPY_HELPERS
+#include <ComputeCopy.h>
 
 #pragma region Command Line Parser
 
@@ -249,6 +250,7 @@ void MakeInitialCondition(matrix<md>& uInitialCondition, matrix<md>& vInitialCon
 	}
 }
 
+//#define PLOT_3D
 template<MathDomain md, PatternType type>
 void runner(const RunParameters& params)
 {
@@ -304,10 +306,12 @@ void runner(const RunParameters& params)
 	forge::Window wnd(1024, 768, "3d Surface Demo");
 	wnd.makeCurrent();
 
-	forge::Chart chart(FG_CHART_3D);
-
 	auto _xGrid = xGrid.Get();
 	auto _yGrid = yGrid.Get();
+
+#ifdef PLOT_3D
+	forge::Chart chart(FG_CHART_3D);
+
 	auto _ic = uInitialCondition.Get();
 	chart.setAxesLimits(_xGrid.front(), _xGrid.back(), _yGrid.front(), _yGrid.back(), .95 * *std::min_element(_ic.begin(), _ic.end()), 1.05 * *std::max_element(_ic.begin(), _ic.end()));
 	chart.setAxesTitles("x-axis", "y-axis", "z-axis");
@@ -317,9 +321,24 @@ void runner(const RunParameters& params)
 
 	GfxHandle* handle;
 	createGLBuffer(&handle, surf.vertices(), FORGE_VERTEX_BUFFER);
+#else
+	forge::Image img(_xGrid.size(), _yGrid.size(), FG_RGBA, forge::f32);
+
+	GfxHandle* handle = 0;
+	createGLBuffer(&handle, img.pixels(), FORGE_IMAGE_BUFFER);
+#endif
 
 	bool toDo = true;
-	cl::Vector<MemorySpace::Device, MathDomain::Float>* xyzTriple = nullptr;
+
+#ifdef PLOT_3D
+	cl::Vector<MemorySpace::Device, MathDomain::Float> xyzTriple(3 * uInitialCondition.size());
+#else
+	MemoryBuffer colorMap(0, 4 * uInitialCondition.size(), MemorySpace::Device, MathDomain::Float);
+	dm::detail::Alloc(colorMap);
+
+	vector<md> uNormalised(uInitialCondition.size());
+	vector<md> minDummy(uNormalised.size(), 1.0);
+#endif
 
 	do
 	{
@@ -334,22 +353,35 @@ void runner(const RunParameters& params)
 					_ApplyPatternDynamic(uSolver.solution->columns[0]->GetBuffer(), vSolver.solution->columns[0]->GetBuffer(), type, params.dt, params.patternParameter1, params.patternParameter2);
 				}
 
-				if (!xyzTriple)
-					xyzTriple = new cl::Vector<MemorySpace::Device, MathDomain::Float>(3 * xGrid.size() * yGrid.size());
-
-				cl::MakeTriple(*xyzTriple, xGrid, yGrid, *uSolver.solution->columns[0]);
-				copyToGLBuffer(handle, (ComputeResourceHandle)xyzTriple->GetBuffer().pointer, surf.verticesSize());
+#ifdef PLOT_3D
+				cl::MakeTriple(xyzTriple, xGrid, yGrid, *uSolver.solution->columns[0]);
+				copyToGLBuffer(handle, (ComputeResourceHandle)xyzTriple.GetBuffer().pointer, surf.verticesSize());
 				wnd.draw(chart);
+#else
+				double min = uSolver.solution->columns[0]->Minimum();
+				minDummy.Set(min);
+				uNormalised.AddEqual(minDummy, -1.0);
+
+				double max = uSolver.solution->columns[0]->AbsoluteMaximum();
+				uNormalised.ReadFrom(*uSolver.solution->columns[0]);
+				uNormalised.Scale(1.0 / max);
+				_MakeRgbaJetColorMap(colorMap, uNormalised.GetBuffer());
+				copyToGLBuffer(handle, (ComputeResourceHandle)colorMap.pointer, img.size());
+				wnd.draw(img);
+#endif
 			}
 		}
 
+#ifdef PLOT_3D
 		wnd.draw(chart);
+#else
+		wnd.draw(img);
+#endif
 		toDo = false;
 	}
 	while (!wnd.close());
 
 	releaseGLBuffer(handle);
-	delete xyzTriple;
 }
 
 int main(int argc, char** argv)
