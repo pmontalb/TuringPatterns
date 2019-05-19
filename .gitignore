@@ -27,3 +27,4 @@ FINITEDIFFERENCE-ffa2693e
 *.iobj
 *.ipdb
 *.exe
+cmake-build-*
