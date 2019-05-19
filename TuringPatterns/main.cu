@@ -33,7 +33,7 @@ public:
 	T GetArgumentValue(const std::string& option) const;
 
 	template<typename T>
-	T GetArgumentValue(const std::string& option, const T& default) const noexcept
+	T GetArgumentValue(const std::string& option, const T& defaultValue) const noexcept
 	{
 		T ret;
 		try
@@ -42,7 +42,7 @@ public:
 		}
 		catch (int)
 		{
-			ret = default;
+			ret = defaultValue;
 		}
 
 		return ret;
@@ -156,6 +156,9 @@ struct RunParameters
 
 	double patternParameter1 = 0.035;
 	double patternParameter2 = 0.065;
+
+	double zMin = 0;
+    double zMax = 5;
 };
 
 template<PatternType patternType, MathDomain md>
@@ -181,7 +184,7 @@ void MakeInitialCondition(matrix<md>& uInitialCondition, matrix<md>& vInitialCon
 				double fb = f(b);
 
 				if (fa * fb > 0)
-					throw std::exception("f doesn't change sign");
+					throw std::logic_error("f doesn't change sign");
 
 				double c = 0;
 				for (size_t i = 0; i < 1000; i++)
@@ -254,7 +257,6 @@ void MakeInitialCondition(matrix<md>& uInitialCondition, matrix<md>& vInitialCon
 template<MathDomain md, PatternType type>
 void runner(const RunParameters& params)
 {
-	std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
 	// ************ Make Grid ************
@@ -313,7 +315,7 @@ void runner(const RunParameters& params)
 	forge::Chart chart(FG_CHART_3D);
 
 	auto _ic = uInitialCondition.Get();
-	chart.setAxesLimits(_xGrid.front(), _xGrid.back(), _yGrid.front(), _yGrid.back(), .95 * *std::min_element(_ic.begin(), _ic.end()), 1.05 * *std::max_element(_ic.begin(), _ic.end()));
+	chart.setAxesLimits(_xGrid.front(), _xGrid.back(), _yGrid.front(), _yGrid.back(), params.zMin, params.zMax);
 	chart.setAxesTitles("x-axis", "y-axis", "z-axis");
 
 	forge::Surface surf = chart.surface(_xGrid.size(), _yGrid.size(), forge::f32);
@@ -411,6 +413,9 @@ int main(int argc, char** argv)
 	rp.yMax = ap.GetArgumentValue<double>("-yM", 0.0);
 	if (rp.yMax == 0)
 		rp.yMax = rp.yDimension - 1.0;
+    rp.zMin = ap.GetArgumentValue<double>("-zm", rp.zMin);
+    rp.zMax = ap.GetArgumentValue<double>("-zM", rp.zMax);
+
 	rp.whiteNoiseScale = ap.GetArgumentValue<double>("-wns", rp.whiteNoiseScale);
 	rp.uDiffusion = ap.GetArgumentValue<double>("-ud", rp.uDiffusion);
 	rp.vDiffusion = ap.GetArgumentValue<double>("-vd", rp.vDiffusion);
