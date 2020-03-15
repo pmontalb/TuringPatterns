@@ -10,6 +10,8 @@
 #include <WaveEquationSolver1D.h>
 #include <WaveEquationSolver2D.h>
 #include <IterableEnum.h>
+#include <Utils/CommandLineParser.h>
+#include <Utils/EnumParser.h>
 
 #include <PatternType.h>
 #include <PatternDynamic.cuh>
@@ -17,109 +19,34 @@
 
 #include <forge.h>
 #define USE_FORGE_CUDA_COPY_HELPERS
-#include <ComputeCopy.h>
+#include <fg/compute_copy.h>
 
-#pragma region Command Line Parser
+//#define PLOT_3D
+#define SAVE_TO_FILE
 
-class CommandLineArgumentParser
+namespace ep
 {
-public:
-	CommandLineArgumentParser(int argc, char **argv)
-		: args(argv, argv + argc)
-	{
-	}
-
-	template<typename T>
-	T GetArgumentValue(const std::string& option) const;
-
-	template<typename T>
-	T GetArgumentValue(const std::string& option, const T& defaultValue) const noexcept
-	{
-		T ret;
-		try
-		{
-			ret = GetArgumentValue<T>(option);
-		}
-		catch (int)
-		{
-			ret = defaultValue;
-		}
-
-		return ret;
-	}
-
-	bool GetFlag(const std::string& option) const
-	{
-		return std::find(args.begin(), args.end(), option) != args.end();
-	}
-
-private:
-	std::vector<std::string> args;
-};
-
-template<>
-std::string CommandLineArgumentParser::GetArgumentValue<std::string>(const std::string& option) const
-{
-	auto itr = std::find(args.begin(), args.end(), option);
-	if (itr != args.end())
-	{
-		if (++itr == args.end())
-			std::abort();
-		return *itr;
-	}
-
-	throw 42;
-}
-
-template<>
-int CommandLineArgumentParser::GetArgumentValue<int>(const std::string& option) const
-{
-	return std::atoi(GetArgumentValue<std::string>(option).c_str());
-}
-
-template<>
-double CommandLineArgumentParser::GetArgumentValue<double>(const std::string& option) const
-{
-	return std::atof(GetArgumentValue<std::string>(option).c_str());
-}
-
-#pragma endregion
-
-#pragma region Enum Mapping
-
 #define PARSE(E, X)\
-	if (!strcmp(text.c_str(), #X))\
-		return E::X;
+    if (!strcmp(text.c_str(), #X))\
+        return E::X;
 
-PatternType parsePatternType(const std::string& text)
-{
+	PatternType ParsePatternType(const std::string &text)
+	{
 #define PARSE_WORKER(X) PARSE(PatternType, X);
 
-	PARSE_WORKER(FitzHughNagumo);
-	PARSE_WORKER(Thomas);
-	PARSE_WORKER(Schnakenberg);
-	PARSE_WORKER(Brussellator);
-	PARSE_WORKER(GrayScott);
+		PARSE_WORKER(FitzHughNagumo);
+		PARSE_WORKER(Thomas);
+		PARSE_WORKER(Schnakenberg);
+		PARSE_WORKER(Brussellator);
+		PARSE_WORKER(GrayScott);
 
 #undef PARSE_WORKER
 
-	return PatternType::Null;
-}
-
-MathDomain parseMathDomain(const std::string& text)
-{
-#define PARSE_WORKER(X) PARSE(MathDomain, X);
-
-	PARSE_WORKER(Double);
-	PARSE_WORKER(Float);
-
-#undef PARSE_WORKER
-	return MathDomain::Null;
-}
+		return PatternType::Null;
+	}
 
 #undef PARSE
-
-#pragma endregion
+}
 
 template<MathDomain md>
 using vector = cl::Vector<MemorySpace::Device, md>;
@@ -135,16 +62,16 @@ struct RunParameters
 	PatternType patternType = PatternType::GrayScott;
 	BoundaryConditionType boundaryCondition = BoundaryConditionType::Periodic;
 
-	size_t xDimension = 128;
+	size_t xDimension = 64;
 	double xMin = 0.0;
 	double xMax = 1.0;
 
-	size_t yDimension = 128;
+	size_t yDimension = 64;
 	double yMin = 0.0;
 	double yMax = 1.0;
 
 	/// Number of plots
-	size_t nIter = 200;
+	size_t nIter = 2000;
 	size_t nIterPerRound = 10;
 
 	double dt = 1.0;
@@ -157,8 +84,10 @@ struct RunParameters
 	double patternParameter1 = 0.035;
 	double patternParameter2 = 0.065;
 
-	double zMin = 0;
-    double zMax = 5;
+	double zMin = 0.1;
+    double zMax = 1.5;
+
+    std::string outputFile = "";
 };
 
 template<PatternType patternType, MathDomain md>
@@ -253,15 +182,14 @@ void MakeInitialCondition(matrix<md>& uInitialCondition, matrix<md>& vInitialCon
 	}
 }
 
-//#define PLOT_3D
 template<MathDomain md, PatternType type>
 void runner(const RunParameters& params)
 {
 	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
 	// ************ Make Grid ************
-	vector<md> xGrid = cl::LinSpace<MemorySpace::Device, md>(params.xMin, params.xMax, params.xDimension);
-	vector<md> yGrid = cl::LinSpace<MemorySpace::Device, md>(params.yMin, params.yMax, params.yDimension);
+	vector<md> xGrid = vector<md>::LinSpace(params.xMin, params.xMax, params.xDimension);
+	vector<md> yGrid = vector<md>::LinSpace(params.yMin, params.yMax, params.yDimension);
 
 	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now(); \
 
@@ -298,37 +226,38 @@ void runner(const RunParameters& params)
 	pde::PdeInputData2D<MemorySpace::Device, md> uData(uInitialCondition, xGrid, yGrid, 0.0, 0.0, params.uDiffusion, params.dt, SolverType::ImplicitEuler, SpaceDiscretizerType::Centered, bc);
 	pde::PdeInputData2D<MemorySpace::Device, md> vData(vInitialCondition, xGrid, yGrid, 0.0, 0.0, params.vDiffusion, params.dt, SolverType::ImplicitEuler, SpaceDiscretizerType::Centered, bc);
 
-	pde::AdvectionDiffusionSolver2D<MemorySpace::Device, md> uSolver(uData);
-	pde::AdvectionDiffusionSolver2D<MemorySpace::Device, md> vSolver(vData);
+	pde::AdvectionDiffusionSolver2D<MemorySpace::Device, md> uSolver(std::move(uData));
+	pde::AdvectionDiffusionSolver2D<MemorySpace::Device, md> vSolver(std::move(vData));
 
 	std::cout << "Solver setup in " << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << " seconds." << std::endl;
 	// ****************************************************
 
-	// solution matrix is a collection of flattened solutions over time
-	forge::Window wnd(1024, 768, "3d Surface Demo");
-	wnd.makeCurrent();
-
 	auto _xGrid = xGrid.Get();
 	auto _yGrid = yGrid.Get();
 
-#ifdef PLOT_3D
-	forge::Chart chart(FG_CHART_3D);
+#ifndef SAVE_TO_FILE
+	// solution matrix is a collection of flattened solutions over time
+	forge::Window wnd(1024, 768, "Pattern");
+	wnd.makeCurrent();
 
-	auto _ic = uInitialCondition.Get();
-	chart.setAxesLimits(_xGrid.front(), _xGrid.back(), _yGrid.front(), _yGrid.back(), params.zMin, params.zMax);
-	chart.setAxesTitles("x-axis", "y-axis", "z-axis");
+	#ifdef PLOT_3D
+		forge::Chart chart(FG_CHART_3D);
 
-	forge::Surface surf = chart.surface(_xGrid.size(), _yGrid.size(), forge::f32);
-	surf.setColor(FG_BLUE);
+		auto _ic = uInitialCondition.Get();
+		chart.setAxesLimits(_xGrid.front(), _xGrid.back(), _yGrid.front(), _yGrid.back(), params.zMin, params.zMax);
+		chart.setAxesTitles("x-axis", "y-axis", "z-axis");
 
-	GfxHandle* handle;
-	createGLBuffer(&handle, surf.vertices(), FORGE_VERTEX_BUFFER);
-#else
-	forge::Image img(_xGrid.size(), _yGrid.size(), FG_RGBA, forge::f32);
+		forge::Surface surf = chart.surface(_xGrid.size(), _yGrid.size(), forge::f32);
+		surf.setColor(FG_BLUE);
 
-	GfxHandle* handle = 0;
-	createGLBuffer(&handle, img.pixels(), FORGE_IMAGE_BUFFER);
-#endif
+		GfxHandle* handle;
+		createGLBuffer(&handle, surf.vertices(), FORGE_VERTEX_BUFFER);
+	#else
+		forge::Image img(_xGrid.size(), _yGrid.size(), FG_RGBA, forge::f32);
+
+		GfxHandle* handle = 0;
+		createGLBuffer(&handle, img.pixels(), FORGE_IMAGE_BUFFER);
+	#endif
 
 	bool toDo = true;
 
@@ -356,8 +285,8 @@ void runner(const RunParameters& params)
 				}
 
 #ifdef PLOT_3D
-				cl::MakeTriple(xyzTriple, xGrid, yGrid, *uSolver.solution->columns[0]);
-				copyToGLBuffer(handle, (ComputeResourceHandle)xyzTriple.GetBuffer().pointer, surf.verticesSize());
+				matrix<md>::MakeTriple(xyzTriple, xGrid, yGrid, *uSolver.solution->columns[0]);
+				copyToGLBuffer(handle, reinterpret_cast<ComputeResourceHandle>(xyzTriple.GetBuffer().pointer), surf.verticesSize());
 				wnd.draw(chart);
 #else
 				double min = uSolver.solution->columns[0]->Minimum();
@@ -384,14 +313,37 @@ void runner(const RunParameters& params)
 	while (!wnd.close());
 
 	releaseGLBuffer(handle);
+#else
+	std::vector<sType<md>> solutionMatrix;
+
+	for (unsigned m = 0; m < params.nIter; ++m)
+	{
+		t1 = std::chrono::high_resolution_clock::now();
+
+		for (unsigned n = 0; n < params.nIterPerRound; ++n)
+		{
+			uSolver.Advance(1);
+			vSolver.Advance(1);
+			_ApplyPatternDynamic(uSolver.solution->columns[0]->GetBuffer(), vSolver.solution->columns[0]->GetBuffer(), type, params.dt, params.patternParameter1, params.patternParameter2);
+		}
+
+		t2 = std::chrono::high_resolution_clock::now();
+		std::cout << "Step " << m << " done in " << std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count() << " seconds." << std::endl;
+
+		const auto solution = uSolver.solution->columns[0]->Get();
+		solutionMatrix.insert(solutionMatrix.end(), solution.begin(), solution.end());
+	}
+
+	cl::MatrixToBinaryFile<sType<md>>(solutionMatrix, params.nIter, uSolver.solution->columns[0]->size(), params.outputFile, false);
+#endif
 }
 
 int main(int argc, char** argv)
 {
-	CommandLineArgumentParser ap(argc, argv);
+	clp::CommandLineArgumentParser ap(argc, argv);
 
-	auto mathDomain = parseMathDomain(ap.GetArgumentValue<std::string>("-md", "Float"));
-	auto patternType = parsePatternType(ap.GetArgumentValue<std::string>("-pattern", "GrayScott"));
+	auto mathDomain = ep::ParseMathDomain(ap.GetArgumentValue<std::string>("-md", "Float"));
+	auto patternType = ep::ParsePatternType(ap.GetArgumentValue<std::string>("-pattern", "GrayScott"));
 
 	RunParameters rp;
 	std::string bc = ap.GetArgumentValue<std::string>("-bc", "Periodic");
@@ -421,7 +373,7 @@ int main(int argc, char** argv)
 	rp.vDiffusion = ap.GetArgumentValue<double>("-vd", rp.vDiffusion);
 	rp.patternParameter1 = ap.GetArgumentValue<double>("-p1", rp.patternParameter1);
 	rp.patternParameter2 = ap.GetArgumentValue<double>("-p2", rp.patternParameter2);
-
+	rp.outputFile = ap.GetArgumentValue<std::string>("-of", "sol.cl");
 
 	switch (mathDomain)
 	{
@@ -430,14 +382,19 @@ int main(int argc, char** argv)
 			{
 				case PatternType::FitzHughNagumo:
 					runner<MathDomain::Float, PatternType::FitzHughNagumo>(rp);
+					break;
 				case PatternType::Thomas:
 					runner<MathDomain::Float, PatternType::Thomas>(rp);
+					break;
 				case PatternType::Schnakenberg:
 					runner<MathDomain::Float, PatternType::Schnakenberg>(rp);
+					break;
 				case PatternType::Brussellator:
 					runner<MathDomain::Float, PatternType::Brussellator>(rp);
+					break;
 				case PatternType::GrayScott:
 					runner<MathDomain::Float, PatternType::GrayScott>(rp);
+					break;
 				default:
 					break;
 			}
@@ -447,14 +404,19 @@ int main(int argc, char** argv)
 			{
 				case PatternType::FitzHughNagumo:
 					runner<MathDomain::Double, PatternType::FitzHughNagumo>(rp);
+					break;
 				case PatternType::Thomas:
 					runner<MathDomain::Double, PatternType::Thomas>(rp);
+					break;
 				case PatternType::Schnakenberg:
 					runner<MathDomain::Double, PatternType::Schnakenberg>(rp);
+					break;
 				case PatternType::Brussellator:
 					runner<MathDomain::Double, PatternType::Brussellator>(rp);
+					break;
 				case PatternType::GrayScott:
 					runner<MathDomain::Double, PatternType::GrayScott>(rp);
+					break;
 				default:
 					break;
 			}
