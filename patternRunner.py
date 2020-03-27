@@ -23,7 +23,7 @@ else:
     X_GRID_FILE = "{}/x_grid.npy".format(CWD)
     Y_GRID_FILE = "{}/y_grid.npy".format(CWD)
 
-chosenBin = releaseBin
+chosenBin = debugBin
 
 def read_solution(file_name, N, N_x, N_y):
     _tensor = np.load(file_name).flatten()
@@ -32,7 +32,7 @@ def read_solution(file_name, N, N_x, N_y):
         m = np.zeros((N_x, N_y))
         for i in range(N_x):
             for j in range(N_y):
-                m[i, j] = _tensor[i + j * N_x + n * N_x * N_y]
+                m[j, i] = _tensor[i + j * N_x + n * N_x * N_y]
         tensor.append(m)
     return np.array(tensor)
 
@@ -454,7 +454,7 @@ def run_fitz_hugh_nagumo_spatial(run=True, save=False):
 
 
 if __name__ == "__main__":
-    # run_gray_scott_bacteria(run=True, save=False)
+    run_gray_scott_bacteria(run=True, save=False)
     # run_gray_scott_bacteria2(run=True, save=False)
     # run_gray_scott_coral(run=True, save=False)
     # run_gray_scott_coral2(run=True, save=False)
@@ -464,4 +464,4 @@ if __name__ == "__main__":
     # run_brussellator_dots(run=True, save=False)
     # run_schnakenberg(run=True, save=False)
     # run_thomas(run=True, save=False)
-    run_fitz_hugh_nagumo(run=True, save=False)
+    # run_fitz_hugh_nagumo(run=True, save=False)

@@ -28,3 +28,4 @@ FINITEDIFFERENCE-ffa2693e
 *.ipdb
 *.exe
 cmake-build-*
+*.npy
