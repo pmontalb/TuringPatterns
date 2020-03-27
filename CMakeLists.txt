@@ -5,7 +5,7 @@ include(cmake/All.cmake)
 set(LANGUAGES_USE_CUDA ON CACHE BOOL "" FORCE)
 
 # PdeFiniteDifference
-add_subdirectory(../PdeFiniteDifferenceSolver ${CMAKE_BINARY_DIR}/PdeFiniteDifferenceSolver EXCLUDE_FROM_ALL)
+add_subdirectory(PdeFiniteDifferenceSolver ${CMAKE_BINARY_DIR}/PdeFiniteDifferenceSolver EXCLUDE_FROM_ALL)
 
 create_cuda_library(
 	NAME
