@@ -1,0 +1,6 @@
+[submodule "cmake"]
+	path = cmake
+	url = git@github.com:pmontalb/CmakeUtilities.git
+[submodule "PdeFiniteDifferenceSolver"]
+	path = PdeFiniteDifferenceSolver
+	url = git@github.com:pmontalb/PdeFiniteDifferenceSolver.git

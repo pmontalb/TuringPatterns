@@ -28,6 +28,6 @@ create_cuda_executable(
 	PRIVATE_INCLUDE_DIRECTORIES
 		../PdeFiniteDifferenceSolver
 	SYSTEM_DEPENDENCIES
-		forge -lGL
+		forge
 )
 
