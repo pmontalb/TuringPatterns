@@ -5,8 +5,8 @@
 EXTERN_C
 {
 	/**
-	* Defines the time discretizer type
-	*/
+	 * Defines the time discretizer type
+	 */
 	enum class PatternType
 	{
 		Null = 0,

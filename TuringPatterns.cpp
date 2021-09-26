@@ -1,13 +1,13 @@
 // TuringPatterns.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
-#include <CudaManager\Vector.h>
-#include <CudaManager\ColumnWiseMatrix.h>
-#include <CudaManager\Tensor.h>
 #include "FiniteDifference\Parabolic.h"
 #include "FiniteDifference\Pattern.h"
 #include "cnpy.h"
+#include "stdafx.h"
+#include <CudaManager\ColumnWiseMatrix.h>
+#include <CudaManager\Tensor.h>
+#include <CudaManager\Vector.h>
 
 #include <chrono>
 #include <functional>
@@ -149,7 +149,7 @@ struct RunParameters
 
 typedef void (*MakeInitialConditionDelegate)(la::CMatrix& uInitialCondition, la::CMatrix& vInitialCondition, const RunParameters& params);
 
-double BinarySearch(const std::function<double(double)>& f, double a, double b, const double tolerance=1e-8)
+double BinarySearch(const std::function<double(double)>& f, double a, double b, const double tolerance = 1e-8)
 {
 	double fa = f(a);
 	double fb = f(b);
@@ -183,63 +183,62 @@ void MakeInitialCondition(la::CMatrix& uInitialCondition, la::CMatrix& vInitialC
 {
 	switch (patternType)
 	{
-	case EPatternType::FitzHughNagumo:
-		uInitialCondition.Set(0.0);
-		vInitialCondition.Set(0.0);
-		break;
-	case EPatternType::Thomas:
-	{
-		auto f = [&](const double v)
+		case EPatternType::FitzHughNagumo:
+			uInitialCondition.Set(0.0);
+			vInitialCondition.Set(0.0);
+			break;
+		case EPatternType::Thomas:
 		{
-			const double u = -1.5 * (params.patternParameter2 - v) + params.patternParameter1;
-			const double h = 13.0 * u * v / (1.0 + u + 0.05 * u * u);
-			return h - (params.patternParameter1 - u);
-		};
-		const double v0 = BinarySearch(f, 0.0, 100.0);
-		const double u0 = -1.5 * (params.patternParameter2 - v0) + params.patternParameter1;
+			auto f = [&](const double v) {
+				const double u = -1.5 * (params.patternParameter2 - v) + params.patternParameter1;
+				const double h = 13.0 * u * v / (1.0 + u + 0.05 * u * u);
+				return h - (params.patternParameter1 - u);
+			};
+			const double v0 = BinarySearch(f, 0.0, 100.0);
+			const double u0 = -1.5 * (params.patternParameter2 - v0) + params.patternParameter1;
 
-		uInitialCondition.Set(u0);
-		vInitialCondition.Set(v0);
-	}
-		break;
-	case EPatternType::Schnakernberg:
-		uInitialCondition.Set(params.patternParameter1 + params.patternParameter2);
-		vInitialCondition.Set(params.patternParameter2 / ((params.patternParameter1 + params.patternParameter2) * (params.patternParameter1 + params.patternParameter2)));
-		break;
-	case EPatternType::Brussellator:
-		uInitialCondition.Set(params.patternParameter1);
-		vInitialCondition.Set(params.patternParameter2 / params.patternParameter1);
-		break;
-	case EPatternType::GrayScott:
-	{
-		uInitialCondition.Set(1.0);
-		vInitialCondition.Set(0.0);
-
-		std::vector<float> uCenteredSquare(uInitialCondition.size());
-		std::vector<float> vCenteredSquare(uInitialCondition.size());
-		size_t squareStartX = uInitialCondition.nRows() * 2 / 5;
-		size_t squareEndX = uInitialCondition.nRows() * 3 / 5;
-		size_t squareStartY = uInitialCondition.nCols() * 2 / 5;
-		size_t squareEndY = uInitialCondition.nCols() * 3 / 5;
-		for (size_t j = squareStartY; j < squareEndY; j++)
-		{
-			for (size_t i = squareStartX; i < squareEndX; i++)
-			{
-				uCenteredSquare[i + uInitialCondition.nRows() * j] = -.5;
-				vCenteredSquare[i + uInitialCondition.nRows() * j] = .25;
-			}
+			uInitialCondition.Set(u0);
+			vInitialCondition.Set(v0);
 		}
-		la::CMatrix uAddition(uInitialCondition);
-		uAddition.ReadFrom(uCenteredSquare);
-		la::CMatrix vAddition(vInitialCondition);
-		vAddition.ReadFrom(vCenteredSquare);
+		break;
+		case EPatternType::Schnakernberg:
+			uInitialCondition.Set(params.patternParameter1 + params.patternParameter2);
+			vInitialCondition.Set(params.patternParameter2 / ((params.patternParameter1 + params.patternParameter2) * (params.patternParameter1 + params.patternParameter2)));
+			break;
+		case EPatternType::Brussellator:
+			uInitialCondition.Set(params.patternParameter1);
+			vInitialCondition.Set(params.patternParameter2 / params.patternParameter1);
+			break;
+		case EPatternType::GrayScott:
+		{
+			uInitialCondition.Set(1.0);
+			vInitialCondition.Set(0.0);
 
-		uInitialCondition.AddEqual(uAddition);
-		vInitialCondition.AddEqual(vAddition);
-	}
+			std::vector<float> uCenteredSquare(uInitialCondition.size());
+			std::vector<float> vCenteredSquare(uInitialCondition.size());
+			size_t squareStartX = uInitialCondition.nRows() * 2 / 5;
+			size_t squareEndX = uInitialCondition.nRows() * 3 / 5;
+			size_t squareStartY = uInitialCondition.nCols() * 2 / 5;
+			size_t squareEndY = uInitialCondition.nCols() * 3 / 5;
+			for (size_t j = squareStartY; j < squareEndY; j++)
+			{
+				for (size_t i = squareStartX; i < squareEndX; i++)
+				{
+					uCenteredSquare[i + uInitialCondition.nRows() * j] = -.5;
+					vCenteredSquare[i + uInitialCondition.nRows() * j] = .25;
+				}
+			}
+			la::CMatrix uAddition(uInitialCondition);
+			uAddition.ReadFrom(uCenteredSquare);
+			la::CMatrix vAddition(vInitialCondition);
+			vAddition.ReadFrom(vCenteredSquare);
+
+			uInitialCondition.AddEqual(uAddition);
+			vInitialCondition.AddEqual(vAddition);
+		}
 		break;
-	default:
-		break;
+		default:
+			break;
 	}
 }
 
@@ -255,13 +254,12 @@ void RunDelegate(MakeInitialConditionDelegate makeInitialCondition, const RunPar
 	CVector xGrid = la::LinSpace(params.xMin, params.xMax, params.xDimension);
 	CVector yGrid = la::LinSpace(params.yMin, params.yMax, params.yDimension);
 
-	high_resolution_clock::time_point t2 = high_resolution_clock::now(); \
+	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
-		std::cout << "Created grid in " << duration_cast<duration<double>>(t2 - t1).count() << " seconds." << std::endl; \
-		// ***********************************
+	std::cout << "Created grid in " << duration_cast<duration<double>>(t2 - t1).count() << " seconds." << std::endl;	// ***********************************
 
-		// ***************** Make Initial Condition ******************
-		t1 = high_resolution_clock::now();
+	// ***************** Make Initial Condition ******************
+	t1 = high_resolution_clock::now();
 
 	CMatrix whiteNoise = la::RandomGaussian(xGrid.size(), yGrid.size());
 	whiteNoise.Scale(params.whiteNoiseScale);
@@ -280,8 +278,7 @@ void RunDelegate(MakeInitialConditionDelegate makeInitialCondition, const RunPar
 	// **************** Initialize Solver ***************
 	t1 = high_resolution_clock::now();
 
-	fd::CPatternData2D input(xGrid, yGrid, uInitialCondition, vInitialCondition,
-		params.uDiffusion, params.vDiffusion, params.patternType, params.boundaryCondition);
+	fd::CPatternData2D input(xGrid, yGrid, uInitialCondition, vInitialCondition, params.uDiffusion, params.vDiffusion, params.patternType, params.boundaryCondition);
 	fd::CPatternSolver2D solver(input, params.dt);
 
 	CMatrix uSolution(xGrid.size(), yGrid.size());
@@ -329,23 +326,23 @@ void Run(const RunParameters& params)
 
 	switch (params.patternType)
 	{
-	case EPatternType::FitzHughNagumo:
-		makeInitialCondition = MakeInitialCondition<EPatternType::FitzHughNagumo>;
-		break;
-	case EPatternType::Thomas:
-		makeInitialCondition = MakeInitialCondition<EPatternType::Thomas>;
-		break;
-	case EPatternType::Schnakernberg:
-		makeInitialCondition = MakeInitialCondition<EPatternType::Schnakernberg>;
-		break;
-	case EPatternType::Brussellator:
-		makeInitialCondition = MakeInitialCondition<EPatternType::Brussellator>;
-		break;
-	case EPatternType::GrayScott:
-		makeInitialCondition = MakeInitialCondition<EPatternType::GrayScott>;
-		break;
-	default:
-		break;
+		case EPatternType::FitzHughNagumo:
+			makeInitialCondition = MakeInitialCondition<EPatternType::FitzHughNagumo>;
+			break;
+		case EPatternType::Thomas:
+			makeInitialCondition = MakeInitialCondition<EPatternType::Thomas>;
+			break;
+		case EPatternType::Schnakernberg:
+			makeInitialCondition = MakeInitialCondition<EPatternType::Schnakernberg>;
+			break;
+		case EPatternType::Brussellator:
+			makeInitialCondition = MakeInitialCondition<EPatternType::Brussellator>;
+			break;
+		case EPatternType::GrayScott:
+			makeInitialCondition = MakeInitialCondition<EPatternType::GrayScott>;
+			break;
+		default:
+			break;
 	}
 
 	RunDelegate(makeInitialCondition, params);
@@ -355,7 +352,9 @@ int main(int argc, char** argv)
 {
 	RunParameters params;
 
-#define PARSE(PARAM, TYPE) if (!strcmp(argv[c], "-" #PARAM)) params.##PARAM = std::ato##TYPE(argv[++c]);
+#define PARSE(PARAM, TYPE)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
+	if (!strcmp(argv[c], "-" #PARAM))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+		params.##PARAM = std::ato##TYPE(argv[++c]);
 
 	for (size_t c = 1; c < argc; c++)
 	{
@@ -414,6 +413,5 @@ int main(int argc, char** argv)
 
 	Run(params);
 
-    return 0;
+	return 0;
 }
-

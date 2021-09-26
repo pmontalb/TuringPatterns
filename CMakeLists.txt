@@ -26,7 +26,7 @@ create_cuda_executable(
 	DEPENDENCIES
 		TuringPatternKernels PdeFiniteDifferenceSolverManager
 	PRIVATE_INCLUDE_DIRECTORIES
-		../PdeFiniteDifferenceSolver
+		PdeFiniteDifferenceSolver
 	SYSTEM_DEPENDENCIES
 		forge
 )
