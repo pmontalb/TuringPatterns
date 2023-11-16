@@ -14,8 +14,8 @@ if os.name == 'nt':
     X_GRID_FILE = "{}\\x_grid.npy".format(CWD)
     Y_GRID_FILE = "{}\\y_grid.npy".format(CWD)
 else:
-    debugBin = "{}/cmake-build-gcc-debug/TuringPatterns".format(CWD)
-    releaseBin = "{}/cmake-build-gcc-release/TuringPatterns".format(CWD)
+    debugBin = "{}/build/bin/TuringPatterns".format(CWD)
+    releaseBin = "{}/build/bin/TuringPatterns".format(CWD)
 
     GRID_FILE = "{}/grid.npy".format(CWD)
     INITIAL_CONDITION_FILE = "{}/ic.npy".format(CWD)
