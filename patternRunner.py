@@ -175,7 +175,7 @@ def run_gray_scott_coral3(run=True, save=False):
                   ["-bc", "Periodic"] +
                   ["-xd", str(N_x)] +
                   ["-yd", str(N_x)] +
-                  ["-nIter", "100"] +
+                  ["-nIter", str(N)] +
                   ["-nIterPerRound", "100"] +
                   ["-dt", ".5"] +
                   ["-wns", ".05"] +
@@ -207,7 +207,7 @@ def run_gray_scott_lines(run=True, save=False):
                   ["-bc", "Periodic"] +
                   ["-xd", str(N_x)] +
                   ["-yd", str(N_x)] +
-                  ["-nIter", "100"] +
+                  ["-nIter", str(N)] +
                   ["-nIterPerRound", "100"] +
                   ["-dt", "1"] +
                   ["-wns", ".05"] +
@@ -399,7 +399,7 @@ def run_fitz_hugh_nagumo_low_beta(run=True, save=False):
                   ["-bc", "ZeroFlux"] +
                   ["-xd", str(N_x)] +
                   ["-yd", str(N_x)] +
-                  ["-nIter", "100"] +
+                  ["-nIter", str(N)] +
                   ["-nIterPerRound", "1000"] +
                   ["-dt", "0.001"] +
                   ["-wns", ".05"] +
@@ -431,7 +431,7 @@ def run_fitz_hugh_nagumo_spatial(run=True, save=False):
                   ["-bc", "ZeroFlux"] +
                   ["-xd", str(N_x)] +
                   ["-yd", str(N_x)] +
-                  ["-nIter", "100"] +
+                  ["-nIter", str(N)] +
                   ["-nIterPerRound", "1000"] +
                   ["-dt", "0.001"] +
                   ["-wns", ".05"] +
@@ -454,6 +454,7 @@ def run_fitz_hugh_nagumo_spatial(run=True, save=False):
 
 
 if __name__ == "__main__":
+
     run_gray_scott_bacteria(run=True, save=False)
     # run_gray_scott_bacteria2(run=True, save=False)
     # run_gray_scott_coral(run=True, save=False)
@@ -465,3 +466,4 @@ if __name__ == "__main__":
     # run_schnakenberg(run=True, save=False)
     # run_thomas(run=True, save=False)
     # run_fitz_hugh_nagumo(run=True, save=False)
+
