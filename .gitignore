@@ -1,1 +1,55 @@
-/home/raiden/programming/TuringPatterns/cmake/.gitignore.in
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# build output
+build/
+
+# IDE
+.idea
+
+# vim
+*.sw*
+
+# sym-links added by cmake
+CMakePresets.json
+IgnoreWarning.h
+.pre-commit-config.yaml
+.clang-format
+.clang-tidy
+
+# python cache
+__pycache__/
+
+# saved output files
+*.npy
+*.gif

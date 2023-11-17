@@ -31,3 +31,28 @@ I made a python script that calls the C++ executable and gather the numerical re
   <img src="https://raw.githubusercontent.com/pmontalb/TuringPatterns/master/lines_compressed.gif">
   <img src="https://raw.githubusercontent.com/pmontalb/TuringPatterns/master/schnakenberg_compressed.gif">
 </p>
+
+## Dependencies
+
+This code requires CUDA version 11. Download it here:
+
+https://developer.nvidia.com/cuda-11.0-download-archive
+
+
+## Building
+
+```
+git submodule update --init --recursive
+mkdir build
+cd build/
+cmake ..
+make
+```
+
+# Running
+
+From the top level:
+
+```
+python3 patternRunner.py
+```

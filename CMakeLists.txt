@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(TuringPatterns)
+project(TuringPatterns CXX C CUDA)
 
 include(cmake/All.cmake)
 set(LANGUAGES_USE_CUDA ON CACHE BOOL "" FORCE)
