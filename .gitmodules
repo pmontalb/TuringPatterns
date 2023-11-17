@@ -1,6 +1,6 @@
 [submodule "cmake"]
 	path = cmake
-	url = git@github.com:pmontalb/CmakeUtilities.git
+	url = git@github.com:chronopoulos/cmake-utils-turing-patterns.git
 [submodule "PdeFiniteDifferenceSolver"]
 	path = PdeFiniteDifferenceSolver
 	url = git@github.com:pmontalb/PdeFiniteDifferenceSolver.git
